@@ -5,10 +5,12 @@
 
 module PPL2.MicroInstructions where
 
-import           PPL2.Memory.Segment (Segment')
+import           PPL2.Memory.Segment (Segment)
 import qualified PPL2.Memory.Segment as Segment
-import           PPL2.Memory.Stack   (Stack')
+import           PPL2.Memory.Stack   (Stack)
 import qualified PPL2.Memory.Stack   as Stack
+import           PPL2.Memory.CodeSeg (CodeSeg)
+import qualified PPL2.Memory.CodeSeg as CodeSeg
 
 import Control.Applicative (Applicative(..))
 import Control.Monad.Except
@@ -18,7 +20,6 @@ import Control.Monad
 import Control.Lens
 
 import qualified Data.Array.IArray as IA
-import qualified Data.IntMap       as IM
 
 import System.IO
 
@@ -29,10 +30,24 @@ import Control.Exception        ( SomeException
 
 -- ----------------------------------------
 
-type Segment      = Segment' MValue
+data MState       = MS { instr  :: ! MProg
+                       , pc     :: ! Int
+                       , stack  :: ! EvalStack
+                       , mem    :: ! MSeg
+                       , frames :: ! RuntimeStack
+                       , status :: ! MStatus
+                       }
+
+type MProg        = CodeSeg Instr
+type EvalStack    = Stack MSeg
+type MSeg         = Segment MValue
+type StackFrame   = Segment MValue
+type RuntimeStack = Stack StackFrame
 
 data Instr        = Instr -- dummy
+
 data MValue       = MV    -- dummy
+
 data Address      = LocA Int
                   | AbsA Int
 
@@ -40,21 +55,6 @@ data MStatus      = Ok
                   | AddressViolation Address
                   | PCoutOfRange
                   | IOError String
-
-newtype MProg     = MProg {unMProg :: IA.Array Int Instr}
-
-type EvalStack    = Stack' MValue
-
-type StackFrame   = Segment
-type RuntimeStack = Stack' StackFrame
-
-data MState       = MS { instr  :: ! MProg
-                       , pc     :: ! Int
-                       , stack  :: ! EvalStack
-                       , mem    :: ! Segment
-                       , frames :: ! RuntimeStack
-                       , status :: ! MStatus
-                       }
 
 -- ----------------------------------------
 
@@ -99,7 +99,7 @@ msInstr k ms = (\ new -> ms {instr = new}) <$> k (instr ms)
 msPc :: Lens' MState Int
 msPc k ms = (\ new -> ms {pc = new}) <$> k (pc ms)
 
-msMem :: Lens' MState Segment
+msMem :: Lens' MState MSeg
 msMem k ms = (\ new -> ms {mem = new}) <$> k (mem ms)
 
 msStack :: Lens' MState EvalStack
@@ -119,12 +119,8 @@ getInstr = check PCoutOfRange getInstr'
 getInstr' :: MicroCode (Maybe Instr)
 getInstr' = do
   i  <- use msPc
-  pg <- uses msInstr unMProg
-  let (lb, ub) = IA.bounds pg
-  return $
-    if (lb <= i && i <= ub)
-    then return $ pg IA.! i
-    else mzero
+  cs <- use msInstr
+  return $ CodeSeg.get i cs
 
 getPc :: MicroCode Int
 getPc = use msPc

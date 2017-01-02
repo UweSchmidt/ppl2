@@ -5,6 +5,9 @@
 
 module PPL2.MicroInstructions where
 
+import           PPL2.Memory.Segment (Segment')
+import qualified PPL2.Memory.Segment as Segment
+
 import Control.Applicative (Applicative(..))
 import Control.Monad.Except
 import Control.Monad.State
@@ -24,6 +27,8 @@ import Control.Exception        ( SomeException
 
 -- ----------------------------------------
 
+type Segment      = Segment' MValue
+
 data Instr        = Instr -- dummy
 data MValue       = MV    -- dummy
 data Address      = LocA Int
@@ -35,14 +40,14 @@ data MStatus      = Ok
                   | IOError String
 
 newtype MProg     = MProg {unMProg :: IA.Array Int Instr}
-newtype MSeg      = MSeg  {unMSeg  :: IM.IntMap MValue}
+
 type EvalStack    = [MValue]
-type RuntimeStack = [MSeg]
+type RuntimeStack = [Segment]
 
 data MState       = MS { instr  :: ! MProg
                        , pc     :: ! Int
                        , stack  :: ! EvalStack
-                       , mem    :: ! MSeg
+                       , mem    :: ! Segment
                        , frames :: ! RuntimeStack
                        , status :: ! MStatus
                        }
@@ -90,7 +95,7 @@ msInstr k ms = (\ new -> ms {instr = new}) <$> k (instr ms)
 msPc :: Lens' MState Int
 msPc k ms = (\ new -> ms {pc = new}) <$> k (pc ms)
 
-msMem :: Lens' MState MSeg
+msMem :: Lens' MState Segment
 msMem k ms = (\ new -> ms {mem = new}) <$> k (mem ms)
 
 msStack :: Lens' MState EvalStack
@@ -134,13 +139,13 @@ readMem a =
 
 readMem' :: Address -> MicroCode (Maybe MValue)
 readMem' (AbsA addr) = do
-  mm <- uses msMem unMSeg
-  return $ IM.lookup addr mm
+  mm <- use msMem
+  return $ Segment.get addr mm
 
 readMem' (LocA addr) = do
   sf <- use msFrames
   return $ do
-    f <- sf ^? _head . to unMSeg
-    IM.lookup addr f
+    frame <- sf ^? _head
+    Segment.get addr frame
 
 -- ----------------------------------------

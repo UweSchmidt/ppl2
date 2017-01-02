@@ -1,4 +1,5 @@
 module PPL2.Memory.Stack
+       (Stack', get, push, pop, top, new)
 where
 
 -- ----------------------------------------
@@ -19,5 +20,8 @@ pop = fmap snd . get
 
 top :: Stack' a -> Maybe a
 top = fmap fst . get
+
+new :: Stack' a
+new = Stack []
 
 -- ----------------------------------------

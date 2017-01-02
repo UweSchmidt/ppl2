@@ -7,6 +7,8 @@ module PPL2.MicroInstructions where
 
 import           PPL2.Memory.Segment (Segment')
 import qualified PPL2.Memory.Segment as Segment
+import           PPL2.Memory.Stack   (Stack')
+import qualified PPL2.Memory.Stack   as Stack
 
 import Control.Applicative (Applicative(..))
 import Control.Monad.Except
@@ -41,8 +43,10 @@ data MStatus      = Ok
 
 newtype MProg     = MProg {unMProg :: IA.Array Int Instr}
 
-type EvalStack    = [MValue]
-type RuntimeStack = [Segment]
+type EvalStack    = Stack' MValue
+
+type StackFrame   = Segment
+type RuntimeStack = Stack' StackFrame
 
 data MState       = MS { instr  :: ! MProg
                        , pc     :: ! Int
@@ -145,7 +149,7 @@ readMem' (AbsA addr) = do
 readMem' (LocA addr) = do
   sf <- use msFrames
   return $ do
-    frame <- sf ^? _head
+    frame <- Stack.top sf
     Segment.get addr frame
 
 -- ----------------------------------------

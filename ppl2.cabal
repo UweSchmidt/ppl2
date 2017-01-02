@@ -21,7 +21,9 @@ executable ppl2
           
   other-modules:
                 PPL2.MicroInstructions
-                       
+                PPL2.Memory.Segment
+                PPL2.Memory.Stack
+                                       
   -- other-extensions:    
   build-depends:       base >=4.7
                      , array      >=0.4

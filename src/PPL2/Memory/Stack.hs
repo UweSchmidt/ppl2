@@ -2,6 +2,8 @@ module PPL2.Memory.Stack
        (Stack, get, push, pop, top, new)
 where
 
+import PPL2.Prelude
+
 -- ----------------------------------------
 
 newtype Stack a = Stack [a]

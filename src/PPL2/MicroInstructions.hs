@@ -5,6 +5,10 @@
 
 module PPL2.MicroInstructions where
 
+import           PPL2.Prelude
+
+import           PPL2.Memory.RTS     (RTS)
+import qualified PPL2.Memory.RTS     as RTS
 import           PPL2.Memory.Segment (Segment)
 import qualified PPL2.Memory.Segment as Segment
 import           PPL2.Memory.Stack   (Stack)
@@ -31,7 +35,7 @@ import Control.Exception        ( SomeException
 -- ----------------------------------------
 
 data MState       = MS { instr  :: ! MProg
-                       , pc     :: ! Int
+                       , pc     :: ! Word
                        , stack  :: ! EvalStack
                        , mem    :: ! MSeg
                        , frames :: ! RuntimeStack
@@ -39,17 +43,17 @@ data MState       = MS { instr  :: ! MProg
                        }
 
 type MProg        = CodeSeg Instr
-type EvalStack    = Stack MSeg
+type EvalStack    = Stack MValue
 type MSeg         = Segment MValue
-type StackFrame   = Segment MValue
-type RuntimeStack = Stack StackFrame
+type RuntimeStack = RTS MValue
 
 data Instr        = Instr -- dummy
 
 data MValue       = MV    -- dummy
 
-data Address      = LocA Int
-                  | AbsA Int
+data Address      = LocA Offset
+                  | AbsA Offset
+                  | RefA DataRef
 
 data MStatus      = Ok
                   | AddressViolation Address
@@ -96,8 +100,8 @@ check exc cmd =
 msInstr :: Lens' MState MProg
 msInstr k ms = (\ new -> ms {instr = new}) <$> k (instr ms)
 
-msPc :: Lens' MState Int
-msPc k ms = (\ new -> ms {pc = new}) <$> k (pc ms)
+msPC :: Lens' MState Offset
+msPC k ms = (\ new -> ms {pc = new}) <$> k (pc ms)
 
 msMem :: Lens' MState MSeg
 msMem k ms = (\ new -> ms {mem = new}) <$> k (mem ms)
@@ -118,18 +122,21 @@ getInstr = check PCoutOfRange getInstr'
 
 getInstr' :: MicroCode (Maybe Instr)
 getInstr' = do
-  i  <- use msPc
+  i  <- use msPC
   cs <- use msInstr
   return $ CodeSeg.get i cs
 
-getPc :: MicroCode Int
-getPc = use msPc
+getPC :: MicroCode Offset
+getPC = use msPC
 
-setPc :: Int -> MicroCode ()
-setPc = (msPc .=)
+setPC :: Offset -> MicroCode ()
+setPC = (msPC .=)
 
-incrPc :: MicroCode ()
-incrPc = msPc += 1
+incrPC :: MicroCode ()
+incrPC = modPC 1
+
+modPC :: Int -> MicroCode ()
+modPC disp = msPC += toEnum disp
 
 -- ----------------------------------------
 
@@ -138,14 +145,11 @@ readMem a =
   check (AddressViolation a) $ readMem' a
 
 readMem' :: Address -> MicroCode (Maybe MValue)
-readMem' (AbsA addr) = do
-  mm <- use msMem
-  return $ Segment.get addr mm
+readMem' (AbsA i)  = Segment.get  i <$> use msMem
+readMem' (LocA i)  = RTS.getLocal i <$> use msFrames
 
-readMem' (LocA addr) = do
-  sf <- use msFrames
-  return $ do
-    frame <- Stack.top sf
-    Segment.get addr frame
+readMem' (RefA (DR sid i))
+  | sid == dataSid = Segment.get  i <$> use msMem
+  | otherwise      = RTS.get  sid i <$> use msFrames
 
 -- ----------------------------------------

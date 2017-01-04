@@ -22,8 +22,10 @@ executable ppl2
   other-modules:
                 PPL2.MicroInstructions
                 PPL2.Memory.CodeSeg
+                PPL2.Memory.RTS
                 PPL2.Memory.Segment
                 PPL2.Memory.Stack
+                PPL2.Prelude
                                        
   -- other-extensions:    
   build-depends:       base >=4.7

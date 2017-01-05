@@ -1,5 +1,5 @@
 module PPL2.Memory.RTS
-       (RTS, MVRTS, new, push, pop, get, put, getLocal, putLocal)
+       (RTS, MVRTS, new, push, pop, get, put, getLocal, putLocal, toDataRef)
 where
 
 import           PPL2.Prim.Prelude
@@ -64,5 +64,8 @@ getLocal i rts = get (topId rts) i rts
 
 putLocal :: Offset -> a -> RTS a -> Maybe (RTS a)
 putLocal i v rts = put (topId rts) i v rts
+
+toDataRef :: Offset -> RTS a -> Maybe DataRef
+toDataRef i rts = (const $ DR (topId rts) i) <$> getLocal i rts
 
 -- ----------------------------------------

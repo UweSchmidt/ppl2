@@ -27,7 +27,8 @@ executable ppl2
                 PPL2.Memory.Stack
                 PPL2.Prim.Prelude
                 PPL2.Prim.MValue
-                                       
+                PPL2.Prim.MInstr
+                
   -- other-extensions:    
   build-depends:       base >=4.7
                      , array      >=0.4

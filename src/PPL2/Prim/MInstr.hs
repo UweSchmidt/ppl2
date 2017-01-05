@@ -19,7 +19,7 @@ data Instr lab
   | SRJumpInd            -- computed subroutine jump
   | Enter Offset         -- allocate new stack frame of specific size
   | Leave                -- delete topmost stack frame
-  | Comp Opcode          -- process values on eval stack
+  | Comp OpCode          -- process values on eval stack
   | Label   lab          -- pseudo instr for assembler code gen
                          -- will be removed during assembly, acts a noop
 
@@ -30,7 +30,7 @@ type MInstr = Instr Displ
 type AInstr = Instr Label
 
 -- the opcode for the configuable set of operations
-type Opcode       = Int
+type OpCode       = Int
 
 -- symbolic code points for assembler
 type Label        = String

@@ -1,8 +1,9 @@
 module PPL2.Memory.Segment
-       (Segment, get, put, new)
+       (Segment, MVSegment, get, put, new)
 where
 
-import           PPL2.Prelude
+import           PPL2.Prim.Prelude
+import           PPL2.Prim.MValue
 
 import qualified Data.IntMap as M
 import qualified Data.List   as L
@@ -12,6 +13,8 @@ import qualified Data.List   as L
 -- A segment has a size and an IntMap for storing values
 
 data Segment a = Segment !Offset !(M.IntMap a)
+
+type MVSegment v = Segment (MValue v)
 
 -- ----------------------------------------
 

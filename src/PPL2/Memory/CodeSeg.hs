@@ -1,14 +1,17 @@
 module PPL2.Memory.CodeSeg
-       (CodeSeg, get, new)
+       (CodeSeg, CodeSegment, get, new)
 where
 
-import PPL2.Prelude
+import PPL2.Prim.Prelude
+import PPL2.Prim.MInstr (MInstr)
 
 import qualified Data.Array.IArray as A
 
 -- ----------------------------------------
 
 newtype CodeSeg a = CS (A.Array Word a)
+
+type CodeSegment  = CodeSeg MInstr
 
 -- ----------------------------------------
 

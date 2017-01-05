@@ -25,7 +25,8 @@ executable ppl2
                 PPL2.Memory.RTS
                 PPL2.Memory.Segment
                 PPL2.Memory.Stack
-                PPL2.Prelude
+                PPL2.Prim.Prelude
+                PPL2.Prim.MValue
                                        
   -- other-extensions:    
   build-depends:       base >=4.7

@@ -1,5 +1,5 @@
-module PPL2.Prelude
-       ( module PPL2.Prelude
+module PPL2.Prim.Prelude
+       ( module PPL2.Prim.Prelude
        , module Data.Word
        )
 where
@@ -15,11 +15,15 @@ type SegId  = Int
 type Offset = Word
 
 -- fixed segment identifiers
-dataSid, fstRTSSid :: SegId
-dataSid   = 0
-fstRTSSid = dataSid + 1
+dataSid, fstRTSSid, nullSid :: SegId
+dataSid   = 0            -- static data segment
+fstRTSSid = dataSid + 1  -- 1. rts segment
+nullSid   = dataSid - 1  -- illegal segment (for null reference)
 
 data    DataRef = DR !SegId !Offset
 newtype CodeRef = CR Offset
+
+nullRef :: DataRef
+nullRef = DR nullSid 0
 
 -- ----------------------------------------

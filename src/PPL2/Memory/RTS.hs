@@ -1,8 +1,10 @@
 module PPL2.Memory.RTS
-       -- (RTS, get, push, pop, top, new)
+       (RTS, MVRTS, new, push, pop, get, put, getLocal, putLocal)
 where
 
-import           PPL2.Prelude
+import           PPL2.Prim.Prelude
+import           PPL2.Prim.MValue
+
 import           PPL2.Memory.Segment (Segment)
 import qualified PPL2.Memory.Segment as Segment
 
@@ -16,6 +18,8 @@ data RTS a =
   , topId    :: ! SegId
   , segments :: ! (M.IntMap (SegId, Segment a))
   }
+
+type MVRTS v = RTS (MValue v)
 
 -- ----------------------------------------
 

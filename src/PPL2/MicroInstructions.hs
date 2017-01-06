@@ -2,12 +2,13 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes #-}
 
 module PPL2.MicroInstructions where
 
 import           PPL2.Prim.Prelude
 import           PPL2.Prim.MValue
-import           PPL2.Prim.MInstr
+import           PPL2.Prim.Instr
 
 import           PPL2.Memory.RTS     (MVRTS)
 import qualified PPL2.Memory.RTS     as RTS
@@ -17,6 +18,8 @@ import           PPL2.Memory.Stack   (MVStack)
 import qualified PPL2.Memory.Stack   as Stack
 import           PPL2.Memory.CodeSeg (CodeSegment)
 import qualified PPL2.Memory.CodeSeg as CodeSeg
+
+import           PPL2.Pretty.Instr
 
 import Control.Applicative (Applicative(..))
 import Control.Monad.Except
@@ -55,10 +58,16 @@ data MStatus      = Ok
                   | RTStackUnderflow
                   | IllegalArgument
                   | IllegalOpCode
+                  | IllegalResult
                   | PCoutOfRange
                   | IOError String
+                  | Terminated
 
-type ALU v = OpCode -> Maybe (Offset, [MValue v] -> MicroCode v [MValue v])
+statusOk :: MStatus -> Bool
+statusOk Ok = True
+statusOk _  = False
+
+type ALU v = OpCode -> Maybe (String, (Int, Int), [MValue v] -> MicroCode v [MValue v])
 
 -- ----------------------------------------
 
@@ -205,6 +214,18 @@ pop = do
   msStack .= s'
   return v
 
+popValue :: Prism' (MValue v) a -> MicroCode v a
+popValue p = check IllegalArgument (preview p <$> pop)
+
+popBool :: MicroCode v Bool
+popBool = popValue _Bool
+
+popWord :: MicroCode v Word
+popWord = popValue _Word
+
+popInt :: MicroCode v Int
+popInt = popValue _Int
+
 -- ----------------------------------------
 
 iLoad :: Address -> MicroInstr v
@@ -221,6 +242,25 @@ iStoreInd = do
   v <- pop
   pop >>= toDataRef >>= flip putInd v
 
+iLoadI :: Int -> MicroInstr v
+iLoadI i = push $ _Int # i
+
+iPop :: MicroInstr v
+iPop = pop >> return ()
+
+iDup :: MicroInstr v
+iDup = do
+  v <- pop
+  push v
+  push v
+
+iSwap :: MicroInstr v
+iSwap = do
+  v1 <- pop
+  v2 <- pop
+  push v1
+  push v2
+
 iLoadAddr :: Address -> MicroInstr v
 iLoadAddr a = check (AddressViolation a) (loadA a) >>= push
   where
@@ -228,10 +268,10 @@ iLoadAddr a = check (AddressViolation a) (loadA a) >>= push
     loadA (LocA i) = (fmap VDRef .     RTS.toDataRef i) <$> use msFrames
     loadA (AbsA i) = (fmap VDRef . Segment.toDataRef i) <$> use msMem
 
-iBr :: IsNull v => Bool -> Displ -> MicroInstr v
+iBr :: Bool -> Displ -> MicroInstr v
 iBr b disp = do
-  isN <- isNull <$> pop
-  when (b == isN) $
+  v <- popBool
+  when (b == v) $
     modPC (disp - 1)  -- pc already incremented
 
 iJump :: Displ -> MicroInstr v
@@ -272,9 +312,11 @@ iLeave = do
 
 iComp :: ALU v -> OpCode -> MicroInstr v
 iComp alu opc = do
-  (arity, evalfct) <- check IllegalOpCode $ return (alu opc)
-  args <- getArgs arity
+  (_name, (noArgs, noRes), evalfct) <- check IllegalOpCode $ return (alu opc)
+  args <- getArgs noArgs
   res  <- evalfct args
+  when (length res /= noRes) $
+    abort IllegalResult
   mapM_ push res
   where
     getArgs 0 = return []
@@ -286,7 +328,77 @@ iComp alu opc = do
           r  <- pop
           return (r : rs)
 
+iTerm :: MicroInstr v
+iTerm = abort Terminated
+
 iLabel :: MicroInstr v
 iLabel = return ()
+
+-- ----------------------------------------
+
+instrTrc :: ALU v -> MInstr -> Offset -> MicroInstr v
+instrTrc alu ins pc' =
+  io $ hPutStrLn stderr line
+  where
+    line = prettyInstr indent prettyOp prettyJmp prettyLab ins
+
+    indent xs =
+      fillLeft 6 (show pc') ++ ": " ++ xs
+
+    prettyOp op' =
+      maybe ("not-used-" ++ show op') (^. _1) $ alu op'
+
+    prettyJmp disp =
+      [show disp, "--> " ++ show (pc' + toEnum disp)]
+
+    prettyLab disp =
+      show disp ++ ":"
+
+-- ----------------------------------------
+
+runCPU :: Bool -> ALU v -> MicroInstr v
+runCPU trc alu = go
+  where
+    go = do
+      continue <- statusOk <$> use msStatus
+      when continue $ do
+        instr <- getInstr
+
+        -- trace the instructions
+        when trc $
+          getPC >>= instrTrc alu instr
+
+        incrPC
+        case instr of
+          Load  a    -> iLoad a
+          Store a    -> iStore a
+          Comp op    -> iComp alu op
+          LoadInd    -> iLoadInd
+          StoreInd   -> iStoreInd
+          LoadI i    -> iLoadI i
+          Pop        -> iPop
+          Dup        -> iDup
+          Swap       -> iSwap
+          LoadAddr a -> iLoadAddr a
+          Br b    t  -> iBr b t
+          Jump    t  -> iJump t
+          SRJump  t  -> iSRJump t
+          LoadLab t  -> iLoadLab t
+          JumpInd    -> iJumpInd
+          SRJumpInd  -> iSRJumpInd
+          Enter ub   -> iEnter ub
+          Leave      -> iLeave
+          Term       -> iTerm
+          Label _    -> iLabel
+        go
+
+initMemory :: [MInstr] -> [MValue v] -> MicroInstr v
+initMemory is vs = do
+  msInstr .= CodeSeg.new is
+  setPC 0
+  msMem    .= Segment.newInit vs
+  msStack  .= Stack.new
+  msFrames .= RTS.new
+  msStatus .= Ok
 
 -- ----------------------------------------

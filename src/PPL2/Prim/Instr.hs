@@ -1,4 +1,4 @@
-module PPL2.Prim.MInstr
+module PPL2.Prim.Instr
        where
 
 import           PPL2.Prim.Prelude
@@ -10,6 +10,10 @@ data Instr lab
   | Store Address        -- store a value into data segment
   | LoadInd              -- load indirect via ref from eval stack
   | StoreInd             -- store indirect via ref from eval stack
+  | LoadI Int            -- load an int onto eval stack
+  | Pop                  -- remove a value from top of evaluation stack
+  | Dup                  -- duplicate the value on top of eval stack
+  | Swap                 -- swap the 2 topmost values on eval stack
   | LoadAddr Address     -- load effective address onto eval stack
   | Br Bool lab          -- conditional jump
   | Jump    lab          -- unconditional jump
@@ -20,6 +24,7 @@ data Instr lab
   | Enter Offset         -- allocate new stack frame of specific size
   | Leave                -- delete topmost stack frame
   | Comp OpCode          -- process values on eval stack
+  | Term                 -- terminated program run
   | Label   lab          -- pseudo instr for assembler code gen
                          -- will be removed during assembly, acts a noop
 

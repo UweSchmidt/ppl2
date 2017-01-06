@@ -15,6 +15,7 @@ type SegId  = Int
 type Offset = Word
 
 -- fixed segment identifiers
+
 dataSid, fstRTSSid, nullSid :: SegId
 dataSid   = 0            -- static data segment
 fstRTSSid = dataSid + 1  -- 1. rts segment

@@ -3,7 +3,7 @@ module PPL2.Memory.CodeSeg
 where
 
 import PPL2.Prim.Prelude
-import PPL2.Prim.MInstr (MInstr)
+import PPL2.Prim.Instr   (MInstr)
 
 import qualified Data.Array.IArray as A
 

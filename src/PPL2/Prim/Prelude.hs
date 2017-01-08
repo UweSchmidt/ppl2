@@ -1,9 +1,16 @@
+{-# LANGUAGE RankNTypes #-}
+
 module PPL2.Prim.Prelude
        ( module PPL2.Prim.Prelude
+       , module Control.Lens
+       , module Data.Maybe
        , module Data.Word
        )
 where
 
+import Control.Lens
+
+import Data.Maybe hiding (fromJust)
 import Data.Word (Word)
 
 -- ----------------------------------------
@@ -26,5 +33,23 @@ newtype CodeRef = CR Offset
 
 nullRef :: DataRef
 nullRef = DR nullSid 0
+
+-- ----------------------------------------
+--
+-- infix pairs fto avoid parents
+
+infixr 1 |->
+
+(|->) :: a -> b -> (a, b)
+x |-> y = (x, y)
+
+-- a predicate as prism
+
+predP :: (a -> Bool) -> Prism' a a
+predP p = prism id
+  (\ x -> case p x of
+      True -> Right x
+      _    -> Left  x
+  )
 
 -- ----------------------------------------

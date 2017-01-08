@@ -3,9 +3,6 @@ where
 
 import PPL2.Prim.Prelude
 
-import Control.Lens
-import Data.Maybe
-
 -- ----------------------------------------
 
 data MValue v

@@ -1,9 +1,8 @@
 module PPL2.Memory.Segment
-       (Segment, MVSegment, get, put, new, newInit, toDataRef)
+       (Segment, get, put, new, newInit, toDataRef)
 where
 
 import           PPL2.Prim.Prelude
-import           PPL2.Prim.MValue
 
 import qualified Data.IntMap as M
 import qualified Data.List   as L
@@ -13,8 +12,6 @@ import qualified Data.List   as L
 -- A segment has a size and an IntMap for storing values
 
 data Segment a = Segment !Offset !(M.IntMap a)
-
-type MVSegment v = Segment (MValue v)
 
 -- ----------------------------------------
 
@@ -48,7 +45,7 @@ newInit vs = Segment (toEnum $ M.size seg - 1) seg
     seg = L.foldl' (\ m (i, v) -> M.insert i v m) M.empty $
           zip [0..] vs
 
-toDataRef :: Offset -> Segment a -> Maybe DataRef
-toDataRef i seg = (const $ DR dataSid i) <$> get i seg
+toDataRef :: Offset -> Segment a -> Maybe (SegId, Offset)
+toDataRef i seg = const (dataSid, i) <$> get i seg
 
 -- ----------------------------------------

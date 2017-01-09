@@ -1,5 +1,5 @@
 module PPL2.Memory.RTS
-       (RTS, MVRTS, new, push, pop, get, put, getLocal, putLocal, toDataRef)
+       (RTS, new, push, pop, get, put, getLocal, putLocal, toDataRef)
 where
 
 import           PPL2.Prim.Prelude
@@ -12,18 +12,16 @@ import qualified Data.IntMap as M
 
 -- ----------------------------------------
 
-data RTS a =
+data RTS v =
   RTS
   { nextId   :: ! SegId
   , topId    :: ! SegId
-  , segments :: ! (M.IntMap (SegId, Segment a))
+  , segments :: ! (M.IntMap (SegId, Segment v))
   }
-
-type MVRTS v = RTS (MValue v)
 
 -- ----------------------------------------
 
-new :: RTS a
+new :: RTS v
 new =
   RTS
   { nextId   = fstRTSSid
@@ -31,7 +29,7 @@ new =
   , segments = M.empty
   }
 
-push :: Segment a -> RTS a -> RTS a
+push :: Segment v -> RTS v -> RTS v
 push seg (RTS nid tid segs) =
   RTS
   { nextId   = nid + 1
@@ -39,7 +37,7 @@ push seg (RTS nid tid segs) =
   , segments = M.insert nid (tid, seg) segs
   }
 
-pop :: RTS a -> Maybe (RTS a)
+pop :: RTS v -> Maybe (RTS v)
 pop (RTS nid tid segs)
   | tid /= dataSid =
       do lastId <- fst <$> M.lookup tid segs
@@ -48,24 +46,24 @@ pop (RTS nid tid segs)
   | otherwise = -- RTS underflow
       Nothing
 
-get :: SegId -> Offset -> RTS a -> Maybe a
+get :: SegId -> Offset -> RTS v -> Maybe v
 get sid i RTS{segments = segs} = do
   seg <- snd <$> M.lookup sid segs
   Segment.get i seg
 
-put :: SegId -> Offset -> a -> RTS a -> Maybe (RTS a)
+put :: SegId -> Offset -> v -> RTS v -> Maybe (RTS v)
 put sid i v rts@RTS{segments = segs} = do
   (lastId, seg) <- M.lookup sid segs
   seg'          <- Segment.put i v seg
   return $ rts {segments = M.insert sid (lastId, seg') segs}
 
-getLocal :: Offset -> RTS a -> Maybe a
+getLocal :: Offset -> RTS v -> Maybe v
 getLocal i rts = get (topId rts) i rts
 
-putLocal :: Offset -> a -> RTS a -> Maybe (RTS a)
+putLocal :: Offset -> v -> RTS v -> Maybe (RTS v)
 putLocal i v rts = put (topId rts) i v rts
 
-toDataRef :: Offset -> RTS a -> Maybe DataRef
-toDataRef i rts = (const $ DR (topId rts) i) <$> getLocal i rts
+toDataRef :: Offset -> RTS v -> Maybe (SegId, Offset)
+toDataRef i rts = const (topId rts, i) <$> getLocal i rts
 
 -- ----------------------------------------

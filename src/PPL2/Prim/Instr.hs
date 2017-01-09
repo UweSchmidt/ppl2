@@ -1,5 +1,5 @@
 module PPL2.Prim.Instr
-       where
+where
 
 import           PPL2.Prim.Prelude
 

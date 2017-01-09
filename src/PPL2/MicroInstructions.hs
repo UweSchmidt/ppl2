@@ -7,14 +7,14 @@
 module PPL2.MicroInstructions where
 
 import           PPL2.Prim.Prelude
-import           PPL2.Prim.MValue
+import           PPL2.Prim.Values
 import           PPL2.Prim.Instr
 
-import           PPL2.Memory.RTS     (MVRTS)
+import           PPL2.Memory.RTS     (RTS)
 import qualified PPL2.Memory.RTS     as RTS
-import           PPL2.Memory.Segment (Segment, MVSegment)
+import           PPL2.Memory.Segment (Segment)
 import qualified PPL2.Memory.Segment as Segment
-import           PPL2.Memory.Stack   (MVStack)
+import           PPL2.Memory.Stack   (Stack)
 import qualified PPL2.Memory.Stack   as Stack
 import           PPL2.Memory.CodeSeg (CodeSegment)
 import qualified PPL2.Memory.CodeSeg as CodeSeg
@@ -41,22 +41,18 @@ import Control.Exception        ( SomeException
 
 data MState v     = MS { instr  :: ! CodeSegment
                        , pc     :: ! Word
-                       , stack  :: ! (EvalStack v)
-                       , mem    :: ! (MSeg v)
-                       , frames :: ! (RTStack v)
+                       , stack  :: ! (Stack v)
+                       , mem    :: ! (Segment v)
+                       , frames :: ! (RTS v)
                        , status :: ! (MStatus v)
                        }
-
-type EvalStack v  = MVStack v
-type MSeg      v  = MVSegment v
-type RTStack   v  = MVRTS v
 
 data MStatus   v  = Ok
                   | AddressViolation Address
                   | DataRefViolation DataRef
                   | EvalStackUnderflow
                   | RTStackUnderflow
-                  | IllegalArgument (MValue v)
+                  | IllegalArgument v
                   | IllegalOpCode
                   | IllegalResult
                   | PCoutOfRange
@@ -67,7 +63,7 @@ statusOk :: MStatus v -> Bool
 statusOk Ok = True
 statusOk _  = False
 
-type ALU v = OpCode -> Maybe (String, (Int, Int), [MValue v] -> MicroCode v [MValue v])
+type ALU v = OpCode -> Maybe (String, (Int, Int), [v] -> MicroCode v [v])
 
 -- ----------------------------------------
 
@@ -93,13 +89,13 @@ msInstr k ms = (\ new -> ms {instr = new}) <$> k (instr ms)
 msPC :: Lens' (MState v) Offset
 msPC k ms = (\ new -> ms {pc = new}) <$> k (pc ms)
 
-msMem :: Lens' (MState v) (MSeg v)
+msMem :: Lens' (MState v) (Segment v)
 msMem k ms = (\ new -> ms {mem = new}) <$> k (mem ms)
 
-msStack :: Lens' (MState v) (EvalStack v)
+msStack :: Lens' (MState v) (Stack v)
 msStack k ms = (\ new -> ms {stack = new}) <$> k (stack ms)
 
-msFrames :: Lens' (MState v) (RTStack v)
+msFrames :: Lens' (MState v) (RTS v)
 msFrames k ms = (\ new -> ms {frames = new}) <$> k (frames ms)
 
 msStatus :: Lens' (MState v) (MStatus v)
@@ -126,14 +122,14 @@ check :: MStatus v -> MicroCode v (Maybe a) -> MicroCode v a
 check exc cmd =
   cmd >>= maybe (abort exc) return
 
-checkMV :: Prism' (MValue v) a -> MValue v -> MicroCode v a
+checkMV :: Prism' v a -> v -> MicroCode v a
 checkMV p v =
   maybe (abort $ IllegalArgument v) return $ preview p v
 
-checkDataRef :: MValue v -> MicroCode v (SegId, Offset)
+checkDataRef :: DataRefValue v => v -> MicroCode v (SegId, Offset)
 checkDataRef = checkMV _DataRef
 
-checkCodeRef :: MValue v -> MicroCode v Offset
+checkCodeRef :: CodeRefValue v => v -> MicroCode v Offset
 checkCodeRef = checkMV _CodeRef
 
 -- ----------------------------------------
@@ -161,24 +157,24 @@ modPC disp = msPC += toEnum disp
 
 -- ----------------------------------------
 
-getMem :: Address -> MicroCode v (MValue v)
+getMem :: Address -> MicroCode v v
 getMem a = check (AddressViolation a) $ getMem' a
   where
-    getMem' :: Address -> MicroCode v (Maybe (MValue v))
+    getMem' :: Address -> MicroCode v (Maybe v)
     getMem' (AbsA i)  = Segment.get  i <$> use msMem
     getMem' (LocA i)  = RTS.getLocal i <$> use msFrames
 
-getInd :: SegId -> Offset -> MicroCode v (MValue v)
+getInd :: SegId -> Offset -> MicroCode v v
 getInd sid i = check (DataRefViolation $ DR sid i) $ getInd'
   where
-    getInd' :: MicroCode v (Maybe (MValue v))
+    getInd' :: MicroCode v (Maybe v)
     getInd'
       | sid == dataSid = Segment.get  i <$> use msMem
       | otherwise      = RTS.get  sid i <$> use msFrames
 
 -- ----------------------------------------
 
-putMem :: Address -> MValue v -> MicroInstr v
+putMem :: Address -> v -> MicroInstr v
 putMem a@(AbsA i) v = do
   mem' <- check (AddressViolation a)
           (Segment.put i v <$> use msMem)
@@ -189,7 +185,7 @@ putMem a@(LocA i) v = do
           (RTS.putLocal i v <$> use msFrames)
   msFrames .= rts'
 
-putInd :: SegId -> Offset -> MValue v -> MicroInstr v
+putInd :: SegId -> Offset -> v -> MicroInstr v
 putInd sid i v
   | sid == dataSid = do
       mem' <- check (DataRefViolation a)
@@ -204,21 +200,21 @@ putInd sid i v
     a = DR sid i
 -- ----------------------------------------
 
-push :: MValue v -> MicroInstr v
+push :: v -> MicroInstr v
 push mv = msStack %= Stack.push mv
 
-pop :: MicroCode v (MValue v)
+pop :: MicroCode v v
 pop = do
   (v, s')  <- check EvalStackUnderflow $
               uses msStack Stack.get
   msStack .= s'
   return v
 
-pushMV :: Prism' (MValue v) a -> a -> MicroInstr v
+pushMV :: Prism' v a -> a -> MicroInstr v
 pushMV pa v =
   push (review pa v)
 
-popMV :: Prism' (MValue v) a -> MicroCode v a
+popMV :: Prism' v a -> MicroCode v a
 popMV p = pop >>= checkMV p
 {- }
 popBool :: MicroCode v Bool
@@ -238,15 +234,15 @@ iLoad a = getMem a >>= push
 iStore :: Address -> MicroInstr v
 iStore a = pop >>= putMem a
 
-iLoadInd :: MicroInstr v
+iLoadInd :: DataRefValue v => MicroInstr v
 iLoadInd = pop >>= checkDataRef >>= uncurry getInd >>= push
 
-iStoreInd :: MicroInstr v
+iStoreInd :: DataRefValue v => MicroInstr v
 iStoreInd = do
   v <- pop
   pop >>= checkDataRef >>= flip (uncurry putInd) v
 
-iLoadI :: Int -> MicroInstr v
+iLoadI :: WordValue v => Int -> MicroInstr v
 iLoadI i = push $ _Int # i
 
 iPop :: MicroInstr v
@@ -265,48 +261,48 @@ iSwap = do
   push v1
   push v2
 
-iLoadAddr :: Address -> MicroInstr v
+iLoadAddr :: DataRefValue v => DataRefValue v => Address -> MicroInstr v
 iLoadAddr a = check (AddressViolation a) (loadA a) >>= push
   where
-    loadA :: Address -> MicroCode v (Maybe (MValue v))
-    loadA (LocA i) = (fmap VDRef .     RTS.toDataRef i) <$> use msFrames
-    loadA (AbsA i) = (fmap VDRef . Segment.toDataRef i) <$> use msMem
+    loadA :: DataRefValue v => Address -> MicroCode v (Maybe v)
+    loadA (LocA i) = (fmap (_DataRef #) .     RTS.toDataRef i) <$> use msFrames
+    loadA (AbsA i) = (fmap (_DataRef #) . Segment.toDataRef i) <$> use msMem
 
-iBr :: Bool -> Displ -> MicroInstr v
+iBr :: WordValue v => Bool -> Displ -> MicroInstr v
 iBr b disp = do
   v <- popMV _Bool
   when (b == v) $
     modPC (disp - 1)  -- pc already incremented
 
-iJump :: Displ -> MicroInstr v
+iJump :: CodeRefValue v => Displ -> MicroInstr v
 iJump disp = modPC (disp - 1)
 
-iSRJump :: Displ -> MicroInstr v
+iSRJump :: CodeRefValue v => Displ -> MicroInstr v
 iSRJump disp = do
-  (VCRef . CR <$> getPC) >>= push
+  ((_CodeRef #) <$> getPC) >>= push
   modPC (disp - 1)
 
-iLoadLab :: Displ -> MicroInstr v
+iLoadLab :: CodeRefValue v => Displ -> MicroInstr v
 iLoadLab disp = do
   i <- (+ toEnum (disp - 1)) <$> getPC
   check PCoutOfRange
-    ((fmap VCRef . CodeSeg.toCodeRef i) <$> use msInstr)
+    ((fmap (_CodeRef #)  . CodeSeg.toCodeRef i) <$> use msInstr)
     >>= push
 
-iJumpInd :: MicroInstr v
+iJumpInd :: CodeRefValue v => MicroInstr v
 iJumpInd = pop >>= checkCodeRef >>= setPC
 
-iSRJumpInd :: MicroInstr v
+iSRJumpInd :: CodeRefValue v => MicroInstr v
 iSRJumpInd = do
   i <- pop >>= checkCodeRef
   (review _CodeRef <$> getPC) >>= push
   setPC i
 
-iEnter :: Offset -> MicroInstr v
+iEnter :: DefaultValue v => Offset -> MicroInstr v
 iEnter ub =
   msFrames %= RTS.push newFrame
   where
-    newFrame = Segment.new ub VUndef
+    newFrame = Segment.new ub (_Default # ())
 
 iLeave :: MicroInstr v
 iLeave = do
@@ -363,15 +359,15 @@ integerArithmeticUnit =
   , "lsi"   |-> microIntInt'Bool (<)
   ]
   where
-    intNE0 :: Prism' (MValue v) Int
+    intNE0 :: Prism' v Int
     intNE0 = _Int . predP (/= 0)
 
 -- ----------------------------------------
 --
 -- lift functions to micro instructions
 
-microInstr1 :: Prism' (MValue v) a ->
-               Prism' (MValue v) b ->
+microInstr1 :: Prism' v a ->
+               Prism' v b ->
                (a -> b) ->
                MicroInstr v
 
@@ -385,9 +381,9 @@ microInt'Bool :: (Int -> Bool) -> MicroInstr v
 microInt'Int  = microInstr1 _Int _Int
 microInt'Bool = microInstr1 _Int _Bool
 
-microInstr2 :: Prism' (MValue v) a ->
-               Prism' (MValue v) b ->
-               Prism' (MValue v) c ->
+microInstr2 :: Prism' v a ->
+               Prism' v b ->
+               Prism' v c ->
                (a -> b -> c) ->
                MicroInstr v
 
@@ -467,7 +463,7 @@ runCPU trc alu = go
           Label _    -> iLabel
         go
 
-initMemory :: [MInstr] -> [MValue v] -> MicroInstr v
+initMemory :: [MInstr] -> [v] -> MicroInstr v
 initMemory is vs = do
   msInstr .= CodeSeg.new is
   setPC 0

@@ -1,15 +1,12 @@
 module PPL2.Memory.Stack
-       (Stack, MVStack, get, push, pop, top, new)
+       (Stack, get, push, pop, top, new)
 where
 
 import PPL2.Prim.Prelude
-import PPL2.Prim.MValue
 
 -- ----------------------------------------
 
 newtype Stack a = Stack [a]
-
-type MVStack v = Stack (MValue v)
 
 -- ----------------------------------------
 

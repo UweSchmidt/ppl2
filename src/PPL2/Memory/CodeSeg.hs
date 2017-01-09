@@ -27,7 +27,7 @@ new xs = CS $ A.listArray (0, toEnum $ size - 1) xs
   where
     size = length xs
 
-toCodeRef :: Offset -> CodeSeg a -> Maybe (CodeRef)
-toCodeRef i cs = (const $ CR i) <$> get i cs
+toCodeRef :: Offset -> CodeSeg a -> Maybe Offset
+toCodeRef i cs = (const i) <$> get i cs
 
 -- ----------------------------------------

@@ -5,7 +5,7 @@ import           PPL2.Prim.Prelude
 
 -- ----------------------------------------
 
-data Instr lab
+data Instr op lab
   = Load  Address        -- load a value from data segment
   | Store Address        -- store a value into data segment
   | LoadInd              -- load indirect via ref from eval stack
@@ -23,13 +23,13 @@ data Instr lab
   | SRJumpInd            -- computed subroutine jump
   | Enter Offset         -- allocate new stack frame of specific size
   | Leave                -- delete topmost stack frame
-  | Comp OpCode          -- process values on eval stack
+  | Comp op              -- process values on eval stack
   | Term                 -- terminated program run
   | Label   lab          -- pseudo instr for assembler code gen
                          -- will be removed during assembly, acts a noop
 
 -- machine instructions
-type MInstr = Instr Displ
+type MInstr = Instr OpCode Displ
 
 -- assembler instructions
 type AInstr = Instr Label
@@ -46,5 +46,8 @@ type Displ        = Int
 -- addresses reference a cell in the main data segment or in the top stack frame
 data Address      = LocA Offset
                   | AbsA Offset
+
+-- symbolic opcodes for assembler instructions
+type Mnemonic     = String
 
 -- ----------------------------------------

@@ -10,111 +10,25 @@ import           PPL2.Prim.Prelude
 import           PPL2.Prim.Values
 import           PPL2.Prim.Instr
 
-import           PPL2.Memory.RTS     (RTS)
 import qualified PPL2.Memory.RTS     as RTS
-import           PPL2.Memory.Segment (Segment)
 import qualified PPL2.Memory.Segment as Segment
-import           PPL2.Memory.Stack   (Stack)
 import qualified PPL2.Memory.Stack   as Stack
-import           PPL2.Memory.CodeSeg (CodeSegment)
 import qualified PPL2.Memory.CodeSeg as CodeSeg
+import           PPL2.Memory.State
+
+import           PPL2.Control.Monad
 
 import           PPL2.Pretty.Instr
 
-import Control.Applicative (Applicative(..))
 import Control.Monad.Except
-import Control.Monad.State
-import Control.Monad
-
-import Control.Lens
-
-import qualified Data.Array.IArray as IA
 
 import System.IO
 
-import Control.Exception        ( SomeException
-                                , IOException
-                                , try
-                                )
-
 -- ----------------------------------------
-
-data MState v     = MS { instr  :: ! CodeSegment
-                       , pc     :: ! Word
-                       , stack  :: ! (Stack v)
-                       , mem    :: ! (Segment v)
-                       , frames :: ! (RTS v)
-                       , status :: ! (MStatus v)
-                       }
-
-data MStatus   v  = Ok
-                  | AddressViolation v
-                  | IllegalArgument v
-                  | EvalStackUnderflow
-                  | RTStackUnderflow
-                  | IllegalOpCode
-                  | IllegalResult
-                  | IOError String
-                  | Terminated
-
-statusOk :: MStatus v -> Bool
-statusOk Ok = True
-statusOk _  = False
 
 type ALU v = OpCode -> Maybe (String, (Int, Int), [v] -> MicroCode v [v])
 
 -- ----------------------------------------
-
-newtype MicroCode v a
-  = RT { unRT :: ExceptT () (StateT (MState v) IO) a }
-  deriving ( Functor, Applicative, Monad
-           , MonadState (MState v)
-           , MonadError ()
-           , MonadIO
-           )
-
-runMicroCode :: MicroCode v a -> MState v -> IO (Either () a, MState v)
-runMicroCode m st
-  = (runStateT . runExceptT . unRT $ m) st
-
-type MicroInstr v = MicroCode v ()
-
--- ----------------------------------------
-
-msInstr :: Lens' (MState v) CodeSegment
-msInstr k ms = (\ new -> ms {instr = new}) <$> k (instr ms)
-
-msPC :: Lens' (MState v) Offset
-msPC k ms = (\ new -> ms {pc = new}) <$> k (pc ms)
-
-msMem :: Lens' (MState v) (Segment v)
-msMem k ms = (\ new -> ms {mem = new}) <$> k (mem ms)
-
-msStack :: Lens' (MState v) (Stack v)
-msStack k ms = (\ new -> ms {stack = new}) <$> k (stack ms)
-
-msFrames :: Lens' (MState v) (RTS v)
-msFrames k ms = (\ new -> ms {frames = new}) <$> k (frames ms)
-
-msStatus :: Lens' (MState v) (MStatus v)
-msStatus k ms = (\ new -> ms {status = new}) <$> k (status ms)
-
--- ----------------------------------------
---
--- lift IO commands and catch all IO exceptions
-
-io :: IO a -> MicroCode v a
-io x = do
-  r <- liftIO $ try x
-  either (abort . IOError . showExc) return $ r
-  where
-    showExc :: IOException -> String
-    showExc = show
-
-abort :: MStatus v -> MicroCode v a
-abort exc = do
-  msStatus .= exc
-  throwError ()
 
 check' :: MStatus v -> Maybe a -> MicroCode v a
 check' exc mv = maybe (abort exc) return mv
@@ -127,13 +41,11 @@ checkCodeRef' i mv = check' (AddressViolation $ _CodeRef # i) mv
 
 checkDataRef' :: DataRefValue v => DataRef -> Maybe a -> MicroCode v a
 checkDataRef' r mv = check' (AddressViolation $ _DataRef # r) mv
-
+{- }
 check :: MStatus v -> MicroCode v (Maybe a) -> MicroCode v a
 check exc cmd =
   cmd >>= maybe (abort exc) return
-
--- checkCodeRef :: CodeRef ->
-
+-- -}
 toValue :: Prism' v a -> v -> MicroCode v a
 toValue = checkValue IllegalArgument
 
@@ -164,29 +76,42 @@ modPC disp = msPC += toEnum disp
 
 -- ----------------------------------------
 
+-- address to DataRef without validation
+-- used for load and store
+
 address2ref :: Address -> MicroCode v DataRef
 address2ref (AbsA i) = Segment.toDataRef i <$> use msMem
 address2ref (LocA i) =     RTS.toDataRef i <$> use msFrames
 
-getMem :: DataRefValue v => Address -> MicroCode v v
-getMem = address2ref >=> getInd
+-- address to DataRef with validation
+-- used for load effective address
+-- validation of address is done by reading the cell (getByDataRef)
+-- and discarding the value
 
-getInd :: DataRefValue v => DataRef -> MicroCode v v
-getInd r@(sid, i) = getInd' >>= checkDataRef' r
+address2ref' :: DataRefValue v => Address -> MicroCode v DataRef
+address2ref' a = do
+  r <- address2ref a
+  getByDataRef r >> return r
+
+getByAddress :: DataRefValue v => Address -> MicroCode v v
+getByAddress = address2ref >=> getByDataRef
+
+getByDataRef :: DataRefValue v => DataRef -> MicroCode v v
+getByDataRef r@(sid, i) = getByDataRef' >>= checkDataRef' r
   where
-    getInd' :: MicroCode v (Maybe v)
-    getInd'
+    getByDataRef' :: MicroCode v (Maybe v)
+    getByDataRef'
       | sid == dataSid = Segment.get  i <$> use msMem
       | otherwise      = RTS.get  sid i <$> use msFrames
 
 -- ----------------------------------------
 
-putMem :: DataRefValue v => Address -> v -> MicroInstr v
-putMem a v = do
-  address2ref a >>= flip putInd v
+putByAddress :: DataRefValue v => Address -> v -> MicroInstr v
+putByAddress a v = do
+  address2ref a >>= flip putByDataRef v
 
-putInd :: DataRefValue v => DataRef -> v -> MicroInstr v
-putInd r@(sid, i) v
+putByDataRef :: DataRefValue v => DataRef -> v -> MicroInstr v
+putByDataRef r@(sid, i) v
   | sid == dataSid =
       (Segment.put i v <$> use msMem)  -- get mem and modify it
       >>= checkDataRef' r              -- check success of modification
@@ -203,26 +128,25 @@ push mv = msStack %= Stack.push mv
 
 pop :: MicroCode v v
 pop = do
-  (v, s')  <- check EvalStackUnderflow $
-              uses msStack Stack.get
+  (v, s')  <- uses msStack Stack.get >>= check' EvalStackUnderflow
   msStack .= s'
   return v
 
 -- ----------------------------------------
 
 iLoad :: DataRefValue v => Address -> MicroInstr v
-iLoad a = getMem a >>= push
+iLoad a = getByAddress a >>= push
 
 iStore :: DataRefValue v => Address -> MicroInstr v
-iStore a = pop >>= putMem a
+iStore a = pop >>= putByAddress a
 
 iLoadInd :: DataRefValue v => MicroInstr v
-iLoadInd = pop >>= toDataRef >>= getInd >>= push
+iLoadInd = pop >>= toDataRef >>= getByDataRef >>= push
 
 iStoreInd :: DataRefValue v => MicroInstr v
 iStoreInd = do
   v <- pop
-  pop >>= toDataRef >>= flip putInd v
+  pop >>= toDataRef >>= flip putByDataRef v
 
 iLoadI :: WordValue v => Int -> MicroInstr v
 iLoadI i = push $ _Int # i
@@ -245,7 +169,7 @@ iSwap = do
 
 iLoadAddr :: DataRefValue v => Address -> MicroInstr v
 iLoadAddr a =
-  ((_DataRef #) <$> address2ref a) >>= push
+  ((_DataRef #) <$> address2ref' a) >>= push
 
 iBr :: WordValue v => Bool -> Displ -> MicroInstr v
 iBr b disp = do
@@ -264,9 +188,7 @@ iSRJump disp = do
 iLoadLab :: CodeRefValue v => Displ -> MicroInstr v
 iLoadLab disp = do
   i <- (+ toEnum (disp - 1)) <$> getPC
-  check (AddressViolation $ _CodeRef # i)
-    ((fmap (_CodeRef #)  . CodeSeg.toCodeRef i) <$> use msInstr)
-    >>= push
+  getInstr i >> push (_CodeRef # i)
 
 iJumpInd :: CodeRefValue v => MicroInstr v
 iJumpInd = pop >>= toCodeRef >>= setPC
@@ -285,9 +207,9 @@ iEnter ub =
 
 iLeave :: MicroInstr v
 iLeave = do
-  rts <- check RTStackUnderflow
-         (RTS.pop <$> use msFrames)
-  msFrames .= rts
+  (RTS.pop <$> use msFrames)
+    >>= check' RTStackUnderflow
+    >>= (msFrames .=)
 
 iTerm :: MicroInstr v
 iTerm = abort Terminated
@@ -301,7 +223,7 @@ iLabel = return ()
 
 iComp :: ALU v -> OpCode -> MicroInstr v
 iComp alu opc = do
-  (_name, (noArgs, noRes), evalfct) <- check IllegalOpCode $ return (alu opc)
+  (_name, (noArgs, noRes), evalfct) <- check' IllegalOpCode (alu opc)
   args <- getArgs noArgs
   res  <- evalfct args
   when (length res /= noRes) $
@@ -320,7 +242,6 @@ iComp alu opc = do
 -- ----------------------------------------
 --
 
-type Mnemonic     = String
 type ArithmUnit v = [(Mnemonic, MicroInstr v)]
 
 -- ----------------------------------------
@@ -366,8 +287,8 @@ microInstr1 :: Prism' v a ->
                (a -> b) ->
                MicroInstr v
 
-microInstr1 pa pb op = do
-  res <- op <$> popMV pa
+microInstr1 pa pb oc = do
+  res <- oc <$> popMV pa
   pushMV pb res
 
 microInt'Int  :: WordValue v => (Int -> Int ) -> MicroInstr v
@@ -382,8 +303,8 @@ microInstr2 :: Prism' v a ->
                (a -> b -> c) ->
                MicroInstr v
 
-microInstr2 pa pb pc op = do     -- !!! last operand is on top of stack
-  res <- flip op <$> popMV pb <*> popMV pa
+microInstr2 pa pb pc oc = do     -- !!! last operand is on top of stack
+  res <- flip oc <$> popMV pb <*> popMV pa
   pushMV pc res
 
 microIntInt'Int  :: WordValue v => (Int -> Int -> Int ) -> MicroInstr v
@@ -430,7 +351,7 @@ runCPU trc alu = go
         case instr of
           Load  a    -> iLoad a
           Store a    -> iStore a
-          Comp op    -> iComp alu op
+          Comp oc    -> iComp alu oc
           LoadInd    -> iLoadInd
           StoreInd   -> iStoreInd
           LoadI i    -> iLoadI i

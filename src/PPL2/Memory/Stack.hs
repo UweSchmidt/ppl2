@@ -2,7 +2,7 @@ module PPL2.Memory.Stack
        (Stack, get, push, pop, top, new)
 where
 
-import PPL2.Prim.Prelude
+import PPL2.Prim.Prelude ()
 
 -- ----------------------------------------
 

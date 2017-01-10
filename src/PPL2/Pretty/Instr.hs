@@ -1,6 +1,6 @@
 module PPL2.Pretty.Instr where
 
-import PPL2.Prim.Prelude
+import PPL2.Prim.Prelude ()
 import PPL2.Prim.Instr
 
 -- ----------------------------------------
@@ -10,10 +10,10 @@ prettyAddr (AbsA i) = "m[" ++ show i ++ "]"
 prettyAddr (LocA i) = "l[" ++ show i ++ "]"
 
 prettyInstr :: (String -> String) ->
-               (OpCode -> String) ->
+               (op  -> String) ->
                (lab -> [String]) ->
                (lab -> String) ->
-               Instr lab -> String
+               Instr op lab -> String
 prettyInstr indent prettyOp prettyJmp prettyLab ins =
   case ins of
     Label lab -> prettyLab lab

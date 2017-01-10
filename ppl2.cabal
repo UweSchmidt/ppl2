@@ -20,11 +20,13 @@ executable ppl2
           PPL2.hs
           
   other-modules:
+                PPL2.Control.Monad
                 PPL2.MicroInstructions
                 PPL2.Memory.CodeSeg
                 PPL2.Memory.RTS
                 PPL2.Memory.Segment
                 PPL2.Memory.Stack
+                PPL2.Memory.State
                 PPL2.Pretty.Instr
                 PPL2.Prim.CoreValue
                 PPL2.Prim.Instr

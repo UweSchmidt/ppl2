@@ -21,6 +21,10 @@ type SegId  = Int
 -- index within a segment
 type Offset = Word
 
+type DataRef = (SegId, Offset)
+
+type CodeRef = Offset
+
 -- fixed segment identifiers
 
 dataSid, fstRTSSid, nullSid :: SegId
@@ -28,11 +32,11 @@ dataSid   = 1            -- static data segment
 fstRTSSid = dataSid + 1  -- 1. rts segment
 nullSid   = dataSid - 1  -- illegal segment (for null reference)
 
-type DataRef = (SegId, Offset)
-type CodeRef = Offset
-
 nullRef :: DataRef
 nullRef = (nullSid, 0)
+
+nullPC :: CodeRef
+nullPC = 0
 
 -- ----------------------------------------
 --

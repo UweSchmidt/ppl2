@@ -1,5 +1,5 @@
 module PPL2.Memory.CodeSeg
-       (CodeSeg, CodeSegment, get, new, toCodeRef)
+       (CodeSeg, CodeSegment, get, new)
 where
 
 import PPL2.Prim.Prelude
@@ -15,7 +15,7 @@ type CodeSegment  = CodeSeg MInstr
 
 -- ----------------------------------------
 
-get :: Word -> CodeSeg a ->  Maybe a
+get :: CodeRef -> CodeSeg a ->  Maybe a
 get i (CS m)
   | 0 <= lb && i <= ub = Just $ m A.! i
   | otherwise          = Nothing
@@ -26,8 +26,5 @@ new :: [a] -> CodeSeg a
 new xs = CS $ A.listArray (0, toEnum $ size - 1) xs
   where
     size = length xs
-
-toCodeRef :: Offset -> CodeSeg a -> Maybe Offset
-toCodeRef i cs = (const i) <$> get i cs
 
 -- ----------------------------------------

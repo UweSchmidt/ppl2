@@ -17,6 +17,7 @@ import qualified PPL2.Memory.CodeSeg as CodeSeg
 import           PPL2.Memory.State
 
 import           PPL2.Control.Monad
+import           PPL2.ALU.Types
 
 import           PPL2.Pretty.Instr
 
@@ -26,7 +27,7 @@ import System.IO
 
 -- ----------------------------------------
 
-type ALU v = OpCode -> Maybe (String, (Int, Int), [v] -> MicroCode v [v])
+-- type ALU v = OpCode -> Maybe (String, (Int, Int), [v] -> MicroCode v [v])
 
 -- ----------------------------------------
 
@@ -222,8 +223,11 @@ iLabel = return ()
 -- the working horse
 
 iComp :: ALU v -> OpCode -> MicroInstr v
-iComp alu opc = do
-  (_name, (noArgs, noRes), evalfct) <- check' IllegalOpCode (alu opc)
+iComp alu oc = do
+  mi <- check' IllegalOpCode (getMicroInstr oc alu)
+  mi
+{- }
+  (_name, (noArgs, noRes), evalfct) <-
   args <- getArgs noArgs
   res  <- evalfct args
   when (length res /= noRes) $
@@ -238,7 +242,7 @@ iComp alu opc = do
           rs <- getArgs (n -1)
           r  <- pop
           return (r : rs)
-
+-- -}
 -- ----------------------------------------
 --
 
@@ -325,7 +329,7 @@ instrTrc alu ins pc' =
       fillLeft 6 (show pc') ++ ": " ++ xs
 
     prettyOp op' =
-      maybe ("not-used-" ++ show op') (^. _1) $ alu op'
+      maybe ("not-used-" ++ show op') id $ getMnemonic op' alu
 
     prettyJmp disp =
       [show disp, "--> " ++ show (pc' + toEnum disp)]

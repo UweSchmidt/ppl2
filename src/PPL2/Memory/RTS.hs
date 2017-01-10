@@ -1,9 +1,8 @@
 module PPL2.Memory.RTS
-       (RTS, new, push, pop, get, put, getLocal, putLocal, toDataRef)
+       (RTS, new, push, pop, get, put, getLocal, putLocal, toDataRef, toDataRef')
 where
 
 import           PPL2.Prim.Prelude
-import           PPL2.Prim.MValue
 
 import           PPL2.Memory.Segment (Segment)
 import qualified PPL2.Memory.Segment as Segment
@@ -63,7 +62,10 @@ getLocal i rts = get (topId rts) i rts
 putLocal :: Offset -> v -> RTS v -> Maybe (RTS v)
 putLocal i v rts = put (topId rts) i v rts
 
-toDataRef :: Offset -> RTS v -> Maybe (SegId, Offset)
-toDataRef i rts = const (topId rts, i) <$> getLocal i rts
+toDataRef' :: Offset -> RTS v -> Maybe DataRef
+toDataRef' i rts = const (topId rts, i) <$> getLocal i rts
+
+toDataRef :: Offset -> RTS v -> DataRef
+toDataRef i rts = (topId rts, i)
 
 -- ----------------------------------------

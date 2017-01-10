@@ -24,15 +24,15 @@ type Offset = Word
 -- fixed segment identifiers
 
 dataSid, fstRTSSid, nullSid :: SegId
-dataSid   = 0            -- static data segment
+dataSid   = 1            -- static data segment
 fstRTSSid = dataSid + 1  -- 1. rts segment
 nullSid   = dataSid - 1  -- illegal segment (for null reference)
 
-data    DataRef = DR !SegId !Offset
-newtype CodeRef = CR Offset
+type DataRef = (SegId, Offset)
+type CodeRef = Offset
 
 nullRef :: DataRef
-nullRef = DR nullSid 0
+nullRef = (nullSid, 0)
 
 -- ----------------------------------------
 --

@@ -9,9 +9,7 @@ import PPL2.Memory.State
 import Control.Monad.Except
 import Control.Monad.State
 
-import Control.Exception ( IOException
-                         , try
-                         )
+import Control.Exception (IOException, try)
 
 -- ----------------------------------------
 
@@ -28,8 +26,7 @@ newtype MicroCode v a
 type MicroInstr v = MicroCode v ()
 
 runMicroCode :: MicroCode v a -> MState v -> IO (Either () a, MState v)
-runMicroCode m st
-  = (runStateT . runExceptT . unRT $ m) st
+runMicroCode m = (runStateT . runExceptT . unRT $ m)
 
 -- ----------------------------------------
 --

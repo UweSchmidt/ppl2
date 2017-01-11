@@ -25,7 +25,7 @@ addInstr :: CompInstrSet v -> ALU v -> ALU v
 addInstr is (ALU a) =
   ALU $ L.foldl' (\ a' (i, mi) -> M.insert i mi a') a $ zip [mx..] is
   where
-    mx = maybe 0 (+ 1) $ fmap (fst . fst) $ M.maxViewWithKey a
+    mx = maybe 0 (+ 1) $ (fst . fst) <$> M.maxViewWithKey a
 
 get :: OpCode -> ALU v -> Maybe (CompInstr v)
 get oc (ALU a) = M.lookup oc a

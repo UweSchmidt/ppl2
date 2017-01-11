@@ -20,6 +20,11 @@ executable ppl2
           PPL2.hs
           
   other-modules:
+                PPL2.ALU.Types
+                PPL2.ALU.IntegerArithmUnit
+                PPL2.ALU.MicroOperations
+                PPL2.Control.Instructions
+                PPL2.Control.MicroOperations
                 PPL2.Control.Monad
                 PPL2.MicroInstructions
                 PPL2.Memory.CodeSeg

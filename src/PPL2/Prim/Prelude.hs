@@ -3,12 +3,14 @@
 module PPL2.Prim.Prelude
        ( module PPL2.Prim.Prelude
        , module Control.Lens
+       , module Control.Monad
        , module Data.Maybe
        , module Data.Word
        )
 where
 
 import Control.Lens
+import Control.Monad
 
 import Data.Maybe hiding (fromJust)
 import Data.Word (Word)

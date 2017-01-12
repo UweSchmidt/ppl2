@@ -6,26 +6,45 @@ module PPL2.Control.Loop where
 
 import           PPL2.Prim.Prelude
 import           PPL2.Prim.Values
-import           PPL2.Prim.Instr           (Instr(..))
+import           PPL2.Prim.Instr           (Instr(..), MInstr)
 
-import           PPL2.Memory.State         (msStatus, statusOk)
+import qualified PPL2.Memory.CodeSeg       as CodeSeg
+import qualified PPL2.Memory.Segment       as Segment
+import           PPL2.Memory.State         (MState, newMState
+                                           ,msInstr, msMem, msStatus, statusOk)
 
 import           PPL2.Control.Instructions
 import           PPL2.Control.MicroOps     (getInstr, getPC, incrPC)
-import           PPL2.Control.Types           (MicroInstr)
+import           PPL2.Control.Types        (MicroInstr, runMicroCode, io)
 
 import           PPL2.ALU.Types            (ALU, getMnemonics)
 
 import           PPL2.Pretty.Instr         (instrTrc)
 
+import           System.IO                 (stderr, hPutStrLn)
+
+-- ----------------------------------------
+
+execProg :: (CodeRefValue v, DataRefValue v, DefaultValue v, WordValue v) =>
+            ALU v -> Bool -> [MInstr] -> [v] -> IO (MState v)
+execProg alu trc is vs =
+  snd <$> runMicroCode (initMem >> execLoop trcOutput alu) newMState
+  where
+    initMem = do
+      msInstr .= CodeSeg.new     is
+      msMem   .= Segment.newInit vs
+    trcOutput
+      | trc       = io . hPutStrLn stderr
+      | otherwise = const $ return ()
+
 -- ----------------------------------------
 
 
-runCPU :: (CodeRefValue v, DataRefValue v, DefaultValue v, WordValue v) =>
+execLoop :: (CodeRefValue v, DataRefValue v, DefaultValue v, WordValue v) =>
           (String -> MicroInstr v) ->    -- the trace output cmd
           ALU v   ->                     -- the arithmetic locical unit
           MicroInstr v
-runCPU trc alu = go
+execLoop trc alu = go
   where
     instructionTrace = instrTrc (getMnemonics alu) trc
 

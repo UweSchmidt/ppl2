@@ -4,12 +4,12 @@
 module PPL2.Control.Types where
 
 import PPL2.Prim.Prelude
-import PPL2.Memory.State
+import PPL2.Memory.State    (MState, MStatus(..), msStatus)
 
-import Control.Monad.Except
-import Control.Monad.State
-
-import Control.Exception (IOException, try)
+import Control.Monad.Except (ExceptT(..), MonadError, runExceptT, throwError
+                            ,MonadIO, liftIO)
+import Control.Monad.State  (StateT(..), MonadState)
+import Control.Exception    (IOException, try)
 
 -- ----------------------------------------
 
@@ -26,7 +26,7 @@ newtype MicroCode v a
 type MicroInstr v = MicroCode v ()
 
 runMicroCode :: MicroCode v a -> MState v -> IO (Either () a, MState v)
-runMicroCode m = (runStateT . runExceptT . unRT $ m)
+runMicroCode = runStateT . runExceptT . unRT
 
 -- ----------------------------------------
 --
@@ -35,7 +35,7 @@ runMicroCode m = (runStateT . runExceptT . unRT $ m)
 io :: IO a -> MicroCode v a
 io x = do
   r <- liftIO $ try x
-  either (abort . IOError . showExc) return $ r
+  either (abort . IOError . showExc) return r
   where
     showExc :: IOException -> String
     showExc = show

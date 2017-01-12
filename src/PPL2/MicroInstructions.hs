@@ -16,10 +16,10 @@ import           PPL2.Memory.State
 
 import           PPL2.Control.Instructions
 import           PPL2.Control.Loop
-import           PPL2.Control.MicroOperations
+import           PPL2.Control.MicroOps
 import           PPL2.Control.Types
 import           PPL2.ALU.Types
-import           PPL2.ALU.MicroOperations
+import           PPL2.ALU.MicroOps
 
 import           PPL2.Pretty.Instr
 

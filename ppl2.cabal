@@ -22,10 +22,10 @@ executable ppl2
   other-modules:
                 PPL2.ALU.Types
                 PPL2.ALU.IntegerArithmUnit
-                PPL2.ALU.MicroOperations
+                PPL2.ALU.MicroOps
                 PPL2.Control.Instructions
                 PPL2.Control.Loop
-                PPL2.Control.MicroOperations
+                PPL2.Control.MicroOps
                 PPL2.Control.Types
                 PPL2.MicroInstructions
                 PPL2.Memory.CodeSeg

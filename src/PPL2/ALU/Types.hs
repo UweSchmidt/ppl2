@@ -1,8 +1,8 @@
 module PPL2.ALU.Types where
 
-import PPL2.Prim.Prelude ()
-import PPL2.Prim.Instr
-import PPL2.Control.Types
+import PPL2.Prim.Prelude     ()
+import PPL2.Prim.Instr       (Mnemonic, OpCode)
+import PPL2.Control.Types    (MicroInstr)
 
 import           Data.IntMap (IntMap)
 import qualified Data.IntMap as M

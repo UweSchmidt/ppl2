@@ -3,19 +3,20 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
 
-module PPL2.Control.MicroOperations where
+module PPL2.Control.MicroOps where
 
 import           PPL2.Prim.Prelude
 import           PPL2.Prim.Values
-import           PPL2.Prim.Instr
+import           PPL2.Prim.Instr     (MInstr, Address(..))
 
 import qualified PPL2.Memory.RTS     as RTS
 import qualified PPL2.Memory.Segment as Segment
 import qualified PPL2.Memory.Stack   as Stack
 import qualified PPL2.Memory.CodeSeg as CodeSeg
-import           PPL2.Memory.State
+import           PPL2.Memory.State   (MStatus(..)
+                                     ,msInstr, msPC, msMem, msFrames, msStack)
 
-import           PPL2.Control.Types
+import           PPL2.Control.Types  (MicroCode, MicroInstr, abort)
 
 -- ----------------------------------------
 --

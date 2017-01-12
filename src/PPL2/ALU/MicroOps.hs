@@ -2,13 +2,13 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 
-module PPL2.ALU.MicroOperations where
+module PPL2.ALU.MicroOps where
 
 import           PPL2.Prim.Prelude
 import           PPL2.Prim.Values
 
-import           PPL2.Control.MicroOperations
-import           PPL2.Control.Types
+import           PPL2.Control.MicroOps (pushMV, popMV)
+import           PPL2.Control.Types    (MicroInstr)
 
 -- ----------------------------------------
 --

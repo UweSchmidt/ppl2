@@ -2,16 +2,16 @@ module PPL2.Control.Instructions where
 
 import           PPL2.Prim.Prelude
 import           PPL2.Prim.Values
-import           PPL2.Prim.Instr
+import           PPL2.Prim.Instr       (Instr(..), Address, Displ, OpCode)
 
-import qualified PPL2.Memory.RTS     as RTS
-import qualified PPL2.Memory.Segment as Segment
-import           PPL2.Memory.State
+import qualified PPL2.Memory.RTS       as RTS
+import qualified PPL2.Memory.Segment   as Segment
+import           PPL2.Memory.State     (MStatus(..), msFrames)
 
-import           PPL2.Control.MicroOperations
-import           PPL2.Control.Types
+import           PPL2.Control.MicroOps
+import           PPL2.Control.Types    (MicroInstr, abort)
 
-import           PPL2.ALU.Types
+import           PPL2.ALU.Types        (ALU, getMicroInstr)
 
 -- ----------------------------------------
 

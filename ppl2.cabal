@@ -24,8 +24,9 @@ executable ppl2
                 PPL2.ALU.IntegerArithmUnit
                 PPL2.ALU.MicroOperations
                 PPL2.Control.Instructions
+                PPL2.Control.Loop
                 PPL2.Control.MicroOperations
-                PPL2.Control.Monad
+                PPL2.Control.Types
                 PPL2.MicroInstructions
                 PPL2.Memory.CodeSeg
                 PPL2.Memory.RTS

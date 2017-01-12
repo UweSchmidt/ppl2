@@ -1,7 +1,9 @@
 module PPL2.Pretty.Instr where
 
-import PPL2.Prim.Prelude ()
+import PPL2.Prim.Prelude
 import PPL2.Prim.Instr
+import PPL2.ALU.Types     (Mnemonics)
+import PPL2.Control.Types (MicroInstr)
 
 -- ----------------------------------------
 
@@ -63,5 +65,27 @@ fillLeft n xs
   | otherwise = xs
   where
     m = n - length xs
+
+-- ----------------------------------------
+--
+-- trace an instruction during prog execution
+
+instrTrc :: Mnemonics -> (String -> MicroInstr v) -> MInstr -> Offset -> MicroInstr v
+instrTrc mns cmd ins pc' =
+  cmd line
+  where
+    line = prettyInstr indent prettyOp prettyJmp prettyLab ins
+
+    indent xs =
+      fillLeft 6 (show pc') ++ ": " ++ xs
+
+    prettyOp op' =
+      fromMaybe ("undefinded-opcode-" ++ show op') . listToMaybe . drop op' $ mns
+
+    prettyJmp disp =
+      [show disp, "--> " ++ show (pc' + toEnum disp)]
+
+    prettyLab disp =
+      show disp ++ ":"
 
 -- ----------------------------------------

@@ -15,7 +15,7 @@ import qualified PPL2.Memory.Stack   as Stack
 import qualified PPL2.Memory.CodeSeg as CodeSeg
 import           PPL2.Memory.State
 
-import           PPL2.Control.Monad
+import           PPL2.Control.Types
 
 -- ----------------------------------------
 --

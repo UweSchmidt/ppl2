@@ -2,7 +2,7 @@ module PPL2.ALU.IntegerArithmUnit where
 
 import           PPL2.Prim.Prelude
 import           PPL2.Prim.Values
-import           PPL2.Control.Monad
+import           PPL2.Control.Types
 import           PPL2.ALU.MicroOperations
 
 -- ----------------------------------------

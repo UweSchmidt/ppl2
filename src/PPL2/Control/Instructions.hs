@@ -9,7 +9,8 @@ import qualified PPL2.Memory.Segment as Segment
 import           PPL2.Memory.State
 
 import           PPL2.Control.MicroOperations
-import           PPL2.Control.Monad
+import           PPL2.Control.Types
+
 import           PPL2.ALU.Types
 
 -- ----------------------------------------

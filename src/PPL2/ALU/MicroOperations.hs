@@ -8,7 +8,7 @@ import           PPL2.Prim.Prelude
 import           PPL2.Prim.Values
 
 import           PPL2.Control.MicroOperations
-import           PPL2.Control.Monad
+import           PPL2.Control.Types
 
 -- ----------------------------------------
 --

@@ -1,7 +1,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module PPL2.Control.Monad where
+module PPL2.Control.Types where
 
 import PPL2.Prim.Prelude
 import PPL2.Memory.State

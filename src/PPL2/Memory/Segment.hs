@@ -1,5 +1,5 @@
 module PPL2.Memory.Segment
-       (Segment, get, put, new, newInit, toDataRef)
+       (Segment, get, put, new, newInit, toDataRef, dump)
 where
 
 import           PPL2.Prim.Prelude
@@ -37,7 +37,9 @@ put i v (Segment len m)
 new :: Offset -> a -> Segment a
 new len v = Segment len seg
   where
-    seg = L.foldl' (\ m i -> M.insert (fromEnum i) v m) M.empty [0..len - 1]
+    seg
+      | len /= 0  = L.foldl' (\ m i -> M.insert (fromEnum i) v m) M.empty [0..len - 1]
+      | otherwise = M.empty
 
 newInit :: [a] -> Segment a
 newInit vs = Segment (toEnum $ M.size seg) seg
@@ -47,5 +49,8 @@ newInit vs = Segment (toEnum $ M.size seg) seg
 
 toDataRef :: Offset -> Segment a -> DataRef
 toDataRef i _seg = (dataSid, i)
+
+dump :: Segment a -> [a]
+dump (Segment _len seg) = M.elems seg
 
 -- ----------------------------------------

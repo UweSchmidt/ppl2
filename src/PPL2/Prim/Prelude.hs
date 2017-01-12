@@ -42,12 +42,12 @@ nullPC = 0
 
 -- ----------------------------------------
 --
--- infix pairs fto avoid parents
+-- infix pairs fto avoid (,)
 
-infixr 1 |->
+infixr 1 .->
 
-(|->) :: a -> b -> (a, b)
-x |-> y = (x, y)
+(.->) :: a -> b -> (a, b)
+x .-> y = (x, y)
 
 -- a predicate as prism
 

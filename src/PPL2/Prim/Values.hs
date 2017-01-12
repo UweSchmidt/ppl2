@@ -26,7 +26,7 @@ class WordValue v where
 
   _Int = _Word . isoWordInt
     where
-      isoWordInt = iso fromEnum toEnum
+      isoWordInt = iso fromIntegral fromIntegral
 
   _Bool = _Word . isoWordBool
     where

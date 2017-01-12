@@ -1,5 +1,5 @@
 module PPL2.Memory.State
-       ( MState
+       ( MState(..)
        , MStatus(..)
        , newMState
        , msInstr, msPC, msMem, msStack, msFrames, msStatus
@@ -22,12 +22,12 @@ import qualified PPL2.Memory.CodeSeg as CodeSeg
 -- ----------------------------------------
 
 data MState v = MS
-                { instr  :: ! CodeSegment
-                , pc     :: ! CodeRef
-                , stack  :: ! (Stack v)
-                , mem    :: ! (Segment v)
-                , frames :: ! (RTS v)
-                , status :: ! (MStatus v)
+                { instr  :: !CodeSegment
+                , pc     :: !CodeRef
+                , stack  :: !(Stack v)
+                , mem    :: !(Segment v)
+                , frames :: !(RTS v)
+                , status :: !(MStatus v)
                 }
 
 -- ----------------------------------------
@@ -73,6 +73,7 @@ data MStatus v = Ok
                | IllegalResult
                | IOError String
                | Terminated
+               deriving (Show)
 
 statusOk :: MStatus v -> Bool
 statusOk Ok = True

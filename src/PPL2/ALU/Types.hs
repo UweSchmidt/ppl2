@@ -18,8 +18,8 @@ newtype ALU v       = ALU (IntMap (Mnemonic, MicroInstr v))
 
 -- ----------------------------------------
 
-new :: ALU v
-new = ALU M.empty
+newAlu :: ALU v
+newAlu = ALU M.empty
 
 addInstr :: CompInstrSet v -> ALU v -> ALU v
 addInstr is (ALU a) =

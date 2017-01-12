@@ -14,7 +14,7 @@ integerArithmeticUnit =
   [ "incri"   |-> microInt'Int     (+ 1)      -- unary arithmetic
   , "decri"   |-> microInt'Int     (\ x -> x - 1)
   , "negi"    |-> microInt'Int     (\ x -> 0 - x)
-  , "is0i"    |-> microInt'Bool    (== 0)
+  , "nulli"   |-> microInt'Bool    (== 0)
 
   , "addi"    |-> microIntInt'Int  (+)        -- binary arithmetic
   , "subi"    |-> microIntInt'Int  (-)

@@ -25,9 +25,9 @@ import           System.IO                 (stderr, hPutStrLn)
 
 -- ----------------------------------------
 
-execProg :: (CodeRefValue v, DataRefValue v, DefaultValue v, WordValue v) =>
-            ALU v -> Bool -> [MInstr] -> [v] -> IO (MState v)
-execProg alu trc is vs =
+execProg' :: (CodeRefValue v, DataRefValue v, DefaultValue v, WordValue v) =>
+             ALU v -> Bool -> [MInstr] -> [v] -> IO (MState v)
+execProg' alu trc is vs =
   snd <$> runMicroCode (initMem >> execLoop trcOutput alu) newMState
   where
     initMem = do

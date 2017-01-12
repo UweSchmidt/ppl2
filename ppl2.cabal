@@ -36,7 +36,6 @@ executable ppl2
                 PPL2.Memory.Stack
                 PPL2.Memory.State
                 PPL2.Pretty.Instr
-                PPL2.Prim.CoreValue
                 PPL2.Prim.Instr
                 PPL2.Prim.Prelude
                 PPL2.Prim.Values

@@ -42,7 +42,7 @@ nullPC = 0
 
 -- ----------------------------------------
 --
--- infix pairs fto avoid (,)
+-- infix pairs to avoid (,)
 
 infixr 1 .->
 
@@ -51,11 +51,19 @@ x .-> y = (x, y)
 
 -- a predicate as prism
 
-predP :: (a -> Bool) -> Prism' a a
-predP p = prism id
+prismPred :: (a -> Bool) -> Prism' a a
+prismPred p = prism id
   (\ x -> case p x of
       True -> Right x
       _    -> Left  x
   )
+
+-- get double elements in a list
+
+dup :: Eq a => [a] -> [a]
+dup [] = []
+dup (x : xs)
+  | x `elem` xs = x : dup xs
+  | otherwise   =     dup xs
 
 -- ----------------------------------------

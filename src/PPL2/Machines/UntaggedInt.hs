@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}  -- instances for Word
 {-# LANGUAGE TypeSynonymInstances #-}
 
 -- this is a VM with simple Word values as machine values

@@ -14,6 +14,8 @@ import           PPL2.Control.Types    (MicroInstr, abort)
 import           PPL2.ALU.Types        (ALU, getMicroInstr)
 
 -- ----------------------------------------
+--
+-- memory access
 
 iLoad :: DataRefValue v => Address -> MicroInstr v
 iLoad a = getByAddress a >>= push
@@ -32,6 +34,14 @@ iStoreInd = do
 iLoadI :: WordValue v => Int -> MicroInstr v
 iLoadI i = push $ _Int # i
 
+iLoadAddr :: DataRefValue v => Address -> MicroInstr v
+iLoadAddr a =
+  ((_DataRef #) <$> address2ref' a) >>= push
+
+-- ----------------------------------------
+--
+-- evaluation stack manipulation
+
 iPop :: MicroInstr v
 iPop = void pop
 
@@ -48,9 +58,9 @@ iSwap = do
   push v1
   push v2
 
-iLoadAddr :: DataRefValue v => Address -> MicroInstr v
-iLoadAddr a =
-  ((_DataRef #) <$> address2ref' a) >>= push
+-- ----------------------------------------
+--
+-- control flow
 
 iBr :: WordValue v => Bool -> Displ -> MicroInstr v
 iBr b disp = do
@@ -80,6 +90,10 @@ iSRJumpInd = do
   (review _CodeRef <$> getPC) >>= push
   setPC i
 
+-- ----------------------------------------
+--
+-- runtime stack manipulation
+
 iEnter :: DefaultValue v => Offset -> MicroInstr v
 iEnter ub =
   msFrames %= RTS.push newFrame
@@ -92,8 +106,18 @@ iLeave =
     >>= check' RTStackUnderflow
     >>= (msFrames .=)
 
+-- ----------------------------------------
+--
+-- the final operation
+
 iTerm :: MicroInstr v
 iTerm = abort Terminated
+
+-- ----------------------------------------
+--
+-- labels shouldn't occur in machine code,
+-- only in assembler, but are still in the Instr set
+-- so labels are interpreted as noop
 
 iLabel :: MicroInstr v
 iLabel = return ()
@@ -101,6 +125,9 @@ iLabel = return ()
 -- ----------------------------------------
 --
 -- the working horse
+-- all compute power is in the ALU
+--
+-- and the ALU is plugged in in the execution loop
 
 iComp :: ALU v -> OpCode -> MicroInstr v
 iComp alu oc =

@@ -22,7 +22,7 @@ data MV
   = VUndef                -- a marker for uninitialized cells
   | VWord !Word           -- an unsigned Int as machine word (???)
   | VDRef !SegId !Offset  -- address of a cell in a data segment
-  | VCRef ! CodeRef       -- address of an instruction
+  | VCRef !CodeRef        -- address of an instruction
 
 -- ----------------------------------------
 --

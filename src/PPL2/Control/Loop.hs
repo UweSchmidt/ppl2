@@ -1,7 +1,3 @@
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RankNTypes #-}
-
 module PPL2.Control.Loop where
 
 import           PPL2.Prim.Prelude
@@ -25,7 +21,7 @@ import           System.IO                 (stderr, hPutStrLn)
 
 -- ----------------------------------------
 
-execProg' :: (CodeRefValue v, DataRefValue v, DefaultValue v, WordValue v) =>
+execProg' :: CoreValue v =>
              ALU v -> Bool -> [MInstr] -> [v] -> IO (MState v)
 execProg' alu trc is vs =
   snd <$> runMicroCode (initMem >> execLoop trcOutput alu) newMState
@@ -40,7 +36,7 @@ execProg' alu trc is vs =
 -- ----------------------------------------
 
 
-execLoop :: (CodeRefValue v, DataRefValue v, DefaultValue v, WordValue v) =>
+execLoop :: CoreValue v =>
           (String -> MicroInstr v) ->    -- the trace output cmd
           ALU v   ->                     -- the arithmetic locical unit
           MicroInstr v

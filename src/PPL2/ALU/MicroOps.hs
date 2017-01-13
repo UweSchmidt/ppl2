@@ -1,6 +1,4 @@
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RankNTypes #-} -- haskell-mode wants this
 
 module PPL2.ALU.MicroOps where
 
@@ -12,7 +10,11 @@ import           PPL2.Control.Types    (MicroInstr)
 
 -- ----------------------------------------
 --
--- lift for unary compute operations
+-- lift unary or binary functions to compute instructions
+
+-- ----------------------------------------
+--
+-- lift for unary functions
 
 microComp1 :: Prism' v a ->
               Prism' v b ->
@@ -31,7 +33,7 @@ microInt'Bool = microComp1 _Int _Bool
 
 -- ----------------------------------------
 --
--- lift for binary compute operations
+-- lift for binary functions
 
 microComp2 :: Prism' v a ->
               Prism' v b ->
@@ -51,7 +53,7 @@ microIntInt'Bool = microComp2 _Int _Int _Bool
 
 -- ----------------------------------------
 --
--- lift for binary compute operations with 2 results
+-- lift for binary functions with 2 results
 
 microComp2'2 :: Prism' v a ->
                 Prism' v b ->

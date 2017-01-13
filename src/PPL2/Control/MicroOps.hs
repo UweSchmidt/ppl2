@@ -1,7 +1,4 @@
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RankNTypes #-} -- haskell mode wants this
 
 module PPL2.Control.MicroOps where
 
@@ -121,7 +118,8 @@ push mv = msStack %= Stack.push mv
 
 pop :: MicroCode v v
 pop = do
-  (v, s')  <- uses msStack Stack.get >>= check' EvalStackUnderflow
+  (v, s') <- uses msStack Stack.get
+             >>= check' EvalStackUnderflow
   msStack .= s'
   return v
 

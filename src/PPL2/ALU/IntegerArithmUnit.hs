@@ -1,15 +1,16 @@
 module PPL2.ALU.IntegerArithmUnit where
 
-import           PPL2.Prim.Prelude
-import           PPL2.Prim.Values
-import           PPL2.Control.Types
-import           PPL2.ALU.MicroOps
+import PPL2.Prim.Prelude
+import PPL2.Prim.Values
+import PPL2.Control.Types ()
+import PPL2.ALU.MicroOps
+import PPL2.ALU.Types     (CompInstrSet)
 
 -- ----------------------------------------
 --
 -- a unit for integer arithmetic
 
-integerArithmeticUnit :: WordValue v => [(String, MicroInstr v)]
+integerArithmeticUnit :: WordValue v => CompInstrSet v
 integerArithmeticUnit =
   [ "incri"   .-> microInt'Int     (+ 1)      -- unary arithmetic
   , "decri"   .-> microInt'Int     (\ x -> x - 1)
@@ -34,6 +35,6 @@ integerArithmeticUnit =
   ]
   where
     intNE0 :: WordValue v => Prism' v Int
-    intNE0 = _Int . predP (/= 0)
+    intNE0 = _Int . prismPred (/= 0)
 
 -- ----------------------------------------

@@ -1,6 +1,6 @@
 module PPL2.ALU.Types where
 
-import PPL2.Prim.Prelude     ()
+import PPL2.Prim.Prelude
 import PPL2.Prim.Instr       (Mnemonic, OpCode)
 import PPL2.Control.Types    (MicroInstr)
 
@@ -14,7 +14,7 @@ type CompInstr    v = (Mnemonic, MicroInstr v)
 type CompInstrSet v = [CompInstr v]
 type Mnemonics      = [Mnemonic]
 
-newtype ALU v       = ALU (IntMap (Mnemonic, MicroInstr v))
+newtype ALU v       = ALU (IntMap (CompInstr v))
 
 -- ----------------------------------------
 
@@ -22,10 +22,14 @@ newAlu :: ALU v
 newAlu = ALU M.empty
 
 addInstr :: CompInstrSet v -> ALU v -> ALU v
-addInstr is (ALU a) =
-  ALU $ L.foldl' (\ a' (i, mi) -> M.insert i mi a') a $ zip [mx..] is
+addInstr is (ALU a)
+  | null dmn  = alu
+  | otherwise = error $
+                "PPL2.ALU.Types.addInstr: doublicated mnemonics " ++ show dmn
   where
-    mx = maybe 0 (+ 1) $ (fst . fst) <$> M.maxViewWithKey a
+    alu = ALU $ L.foldl' (\ a' (i, mi) -> M.insert i mi a') a $ zip [mx..] is
+    mx  = maybe 0 (+ 1) $ (fst . fst) <$> M.maxViewWithKey a
+    dmn = dup $ getMnemonics alu
 
 get :: OpCode -> ALU v -> Maybe (CompInstr v)
 get oc (ALU a) = M.lookup oc a

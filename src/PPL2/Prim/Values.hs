@@ -1,4 +1,4 @@
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ConstraintKinds #-}
 
 module PPL2.Prim.Values
 where
@@ -40,6 +40,8 @@ class CodeRefValue v where
 
 class DefaultValue v where
   _Default :: Prism' v ()
+
+type CoreValue v = (WordValue v, DataRefValue v, CodeRefValue v, DefaultValue v)
 
 -- ----------------------------------------
 --

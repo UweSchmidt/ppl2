@@ -27,7 +27,7 @@ executable ppl2
                 PPL2.Control.Loop
                 PPL2.Control.MicroOps
                 PPL2.Control.Types
-                PPL2.MicroInstructions
+                PPL2.Machines.Prelude
                 PPL2.Machines.TaggedInt
                 PPL2.Machines.UntaggedInt
                 PPL2.Memory.CodeSeg

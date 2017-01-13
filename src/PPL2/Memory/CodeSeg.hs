@@ -5,27 +5,20 @@ where
 import PPL2.Prim.Prelude
 import PPL2.Prim.Instr   (MInstr)
 
-import qualified Data.Array.IArray as A
+import qualified Data.Vector as V
 
 -- ----------------------------------------
 
-data CodeSeg a = CS !Word (A.Array Word a)
+newtype CodeSeg a = CS (V.Vector a)
 
 type CodeSegment  = CodeSeg MInstr
 
 -- ----------------------------------------
 
 get :: CodeRef -> CodeSeg a ->  Maybe a
-get i (CS len m)
-  | i < len   = Just $ m A.! i
-  | otherwise = Nothing
-  where
-    (lb, ub) = A.bounds m
+get i (CS m) = m V.!? fromIntegral i
 
 new :: [a] -> CodeSeg a
-new [] = CS 0            undefined
-new xs = CS (toEnum len) (A.listArray (0, toEnum $ len - 1) xs)
-  where
-    len = length xs
+new = CS . V.fromList
 
 -- ----------------------------------------

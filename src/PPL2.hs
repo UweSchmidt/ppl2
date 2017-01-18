@@ -3,8 +3,8 @@ module Main where
 import PPL2.Prelude
 import PPL2.VM
 
-import qualified PPL2.Machines.UntaggedInt as U
-import qualified PPL2.Machines.TaggedInt   as T
+import qualified PPL2.VM.Machines.UntaggedInt as U
+import qualified PPL2.VM.Machines.TaggedInt   as T
 
 import           PPL2.VM.Memory.State
 import qualified PPL2.VM.Memory.Segment as Segment

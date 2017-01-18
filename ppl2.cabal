@@ -30,14 +30,14 @@ executable ppl2
                 PPL2.VM.Control.Loop
                 PPL2.VM.Control.MicroOps
                 PPL2.VM.Control.Types
-                PPL2.Machines.TaggedInt
-                PPL2.Machines.UntaggedInt
+                PPL2.VM.Machines.TaggedInt
+                PPL2.VM.Machines.UntaggedInt
                 PPL2.VM.Memory.CodeSeg
                 PPL2.VM.Memory.RTS
                 PPL2.VM.Memory.Segment
                 PPL2.VM.Memory.Stack
                 PPL2.VM.Memory.State
-                PPL2.Pretty.Instr
+                PPL2.VM.Pretty.Instr
                                 
   -- other-extensions:    
   build-depends:       base >=4.7

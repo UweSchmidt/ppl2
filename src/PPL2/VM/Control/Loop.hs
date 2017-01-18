@@ -7,14 +7,11 @@ import qualified PPL2.VM.Memory.CodeSeg       as CodeSeg
 import qualified PPL2.VM.Memory.Segment       as Segment
 import           PPL2.VM.Memory.State         (MState, newMState
                                               ,msInstr, msMem, msStatus, statusOk)
-
 import           PPL2.VM.Control.Instructions
 import           PPL2.VM.Control.MicroOps     (getInstr, getPC, incrPC)
 import           PPL2.VM.Control.Types        (MicroInstr, runMicroCode, io)
-
 import           PPL2.VM.ALU.Types            (ALU, getMnemonics)
-
-import           PPL2.Pretty.Instr         (instrTrc)
+import           PPL2.VM.Pretty.Instr         (instrTrc)
 
 import           System.IO                   (stderr, hPutStrLn)
 

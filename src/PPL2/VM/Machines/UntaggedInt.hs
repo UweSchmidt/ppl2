@@ -9,7 +9,7 @@
 
 -- ----------------------------------------
 
-module PPL2.Machines.UntaggedInt where
+module PPL2.VM.Machines.UntaggedInt where
 
 import PPL2.Prelude
 import PPL2.VM

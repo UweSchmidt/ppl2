@@ -9,7 +9,7 @@
 
 -- ----------------------------------------
 
-module PPL2.Machines.TaggedInt
+module PPL2.VM.Machines.TaggedInt
 where
 
 import PPL2.Prelude

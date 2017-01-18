@@ -2,7 +2,8 @@ module PPL2.Memory.Segment
        (Segment, get, put, new, newInit, toDataRef, dump)
 where
 
-import           PPL2.Prim.Prelude
+import PPL2.Prelude
+import PPL2.VM.Types
 
 import qualified Data.IntMap as M
 import qualified Data.List   as L

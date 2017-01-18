@@ -20,6 +20,9 @@ executable ppl2
           PPL2.hs
           
   other-modules:
+                PPL2.Prelude
+                PPL2.VM
+                PPL2.VM.Types
                 PPL2.ALU.Types
                 PPL2.ALU.IntegerArithmUnit
                 PPL2.ALU.MicroOps
@@ -27,7 +30,6 @@ executable ppl2
                 PPL2.Control.Loop
                 PPL2.Control.MicroOps
                 PPL2.Control.Types
-                PPL2.Machines.Prelude
                 PPL2.Machines.TaggedInt
                 PPL2.Machines.UntaggedInt
                 PPL2.Memory.CodeSeg
@@ -36,9 +38,6 @@ executable ppl2
                 PPL2.Memory.Stack
                 PPL2.Memory.State
                 PPL2.Pretty.Instr
-                PPL2.Prim.Instr
-                PPL2.Prim.Prelude
-                PPL2.Prim.Values
                                 
   -- other-extensions:    
   build-depends:       base >=4.7

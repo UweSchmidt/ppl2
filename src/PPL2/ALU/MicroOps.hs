@@ -2,8 +2,8 @@
 
 module PPL2.ALU.MicroOps where
 
-import           PPL2.Prim.Prelude
-import           PPL2.Prim.Values
+import PPL2.Prelude
+import PPL2.VM.Types
 
 import           PPL2.Control.MicroOps (pushMV, popMV)
 import           PPL2.Control.Types    (MicroInstr)

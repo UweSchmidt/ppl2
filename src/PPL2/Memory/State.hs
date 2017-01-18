@@ -7,7 +7,8 @@ module PPL2.Memory.State
        )
 where
 
-import PPL2.Prim.Prelude
+import PPL2.Prelude
+import PPL2.VM.Types
 
 import PPL2.Memory.RTS     (RTS)
 import PPL2.Memory.Segment (Segment)

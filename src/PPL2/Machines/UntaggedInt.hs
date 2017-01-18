@@ -11,7 +11,8 @@
 
 module PPL2.Machines.UntaggedInt where
 
-import PPL2.Machines.Prelude
+import PPL2.Prelude
+import PPL2.VM
 
 import PPL2.ALU.IntegerArithmUnit
 

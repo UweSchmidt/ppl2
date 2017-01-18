@@ -1,7 +1,7 @@
 module PPL2.ALU.IntegerArithmUnit where
 
-import PPL2.Prim.Prelude
-import PPL2.Prim.Values
+import PPL2.Prelude
+import PPL2.VM.Types
 import PPL2.Control.Types ()
 import PPL2.ALU.MicroOps
 import PPL2.ALU.Types     (CompInstrSet)

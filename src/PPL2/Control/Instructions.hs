@@ -1,8 +1,7 @@
 module PPL2.Control.Instructions where
 
-import           PPL2.Prim.Prelude
-import           PPL2.Prim.Values
-import           PPL2.Prim.Instr       (Instr(..), Address, Displ, OpCode)
+import PPL2.Prelude
+import PPL2.VM.Types
 
 import qualified PPL2.Memory.RTS       as RTS
 import qualified PPL2.Memory.Segment   as Segment

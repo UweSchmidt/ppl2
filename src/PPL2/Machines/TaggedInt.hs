@@ -12,7 +12,8 @@
 module PPL2.Machines.TaggedInt
 where
 
-import PPL2.Machines.Prelude
+import PPL2.Prelude
+import PPL2.VM
 
 import PPL2.ALU.IntegerArithmUnit
 

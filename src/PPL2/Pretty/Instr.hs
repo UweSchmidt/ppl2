@@ -1,7 +1,7 @@
 module PPL2.Pretty.Instr where
 
-import PPL2.Prim.Prelude
-import PPL2.Prim.Instr
+import PPL2.Prelude
+import PPL2.VM.Types
 import PPL2.ALU.Types     (Mnemonics)
 import PPL2.Control.Types (MicroInstr)
 

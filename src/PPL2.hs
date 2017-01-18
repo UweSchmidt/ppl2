@@ -1,6 +1,7 @@
 module Main where
 
-import PPL2.Machines.Prelude
+import PPL2.Prelude
+import PPL2.VM
 
 import qualified PPL2.Machines.UntaggedInt as U
 import qualified PPL2.Machines.TaggedInt   as T

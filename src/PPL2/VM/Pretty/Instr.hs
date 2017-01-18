@@ -42,7 +42,7 @@ prettyInstr indent prettyOp prettyJmp prettyLab ins =
         SRJumpInd  -> ["srjumpind"]
         Enter ub   -> ["pushframe", show $ ub + 1]
         Leave      -> ["popframe"]
-        Comp op    -> [prettyOp op]
+        Comp op'   -> [prettyOp op']
         Term       -> ["terminate"]
         _          -> []
     fmt = unwords . align1

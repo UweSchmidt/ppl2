@@ -2,7 +2,7 @@ module PPL2.VM.Memory.RTS
        (RTS, new, push, pop, get, put, getLocal, putLocal, toDataRef)
 where
 
-import PPL2.Prelude
+import PPL2.Prelude  ()
 import PPL2.VM.Types
 
 import           PPL2.VM.Memory.Segment (Segment)

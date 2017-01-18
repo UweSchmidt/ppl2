@@ -3,7 +3,6 @@
 module PPL2.VM.Control.Types where
 
 import PPL2.Prelude
-import PPL2.VM.Types
 import PPL2.VM.Memory.State (MState, MStatus(..), msStatus)
 
 import Control.Monad.Except (ExceptT(..), MonadError, runExceptT, throwError

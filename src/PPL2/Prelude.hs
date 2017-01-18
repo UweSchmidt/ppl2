@@ -53,7 +53,7 @@ prismPred p = prism id
 dup :: Eq a => [a] -> [a]
 dup = reverse . dup' []
   where
-    dup' acc [] = []
+    dup' acc [] = acc
     dup' acc (x : xs)
       | x `elem` xs
         &&

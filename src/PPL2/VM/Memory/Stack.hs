@@ -2,8 +2,8 @@ module PPL2.VM.Memory.Stack
        (Stack, get, push, pop, top, new)
 where
 
-import PPL2.Prelude
-import PPL2.VM.Types
+import PPL2.Prelude  ()
+import PPL2.VM.Types ()
 
 -- ----------------------------------------
 

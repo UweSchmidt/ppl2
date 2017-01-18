@@ -1,4 +1,4 @@
-module PPL2.Memory.Stack
+module PPL2.VM.Memory.Stack
        (Stack, get, push, pop, top, new)
 where
 

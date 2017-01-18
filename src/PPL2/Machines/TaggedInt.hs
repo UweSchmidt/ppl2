@@ -14,8 +14,7 @@ where
 
 import PPL2.Prelude
 import PPL2.VM
-
-import PPL2.ALU.IntegerArithmUnit
+import PPL2.VM.ALU.IntegerArithmUnit
 
 -- ----------------------------------------
 

@@ -1,4 +1,4 @@
-module PPL2.Memory.State
+module PPL2.VM.Memory.State
        ( MState(..)
        , MStatus(..)
        , newMState
@@ -10,15 +10,15 @@ where
 import PPL2.Prelude
 import PPL2.VM.Types
 
-import PPL2.Memory.RTS     (RTS)
-import PPL2.Memory.Segment (Segment)
-import PPL2.Memory.Stack   (Stack)
-import PPL2.Memory.CodeSeg (CodeSegment)
+import PPL2.VM.Memory.RTS     (RTS)
+import PPL2.VM.Memory.Segment (Segment)
+import PPL2.VM.Memory.Stack   (Stack)
+import PPL2.VM.Memory.CodeSeg (CodeSegment)
 
-import qualified PPL2.Memory.RTS     as RTS
-import qualified PPL2.Memory.Segment as Segment
-import qualified PPL2.Memory.Stack   as Stack
-import qualified PPL2.Memory.CodeSeg as CodeSeg
+import qualified PPL2.VM.Memory.RTS     as RTS
+import qualified PPL2.VM.Memory.Segment as Segment
+import qualified PPL2.VM.Memory.Stack   as Stack
+import qualified PPL2.VM.Memory.CodeSeg as CodeSeg
 
 -- ----------------------------------------
 

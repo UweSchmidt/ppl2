@@ -1,22 +1,22 @@
-module PPL2.Control.Loop where
+module PPL2.VM.Control.Loop where
 
 import PPL2.Prelude
 import PPL2.VM.Types
 
-import qualified PPL2.Memory.CodeSeg       as CodeSeg
-import qualified PPL2.Memory.Segment       as Segment
-import           PPL2.Memory.State         (MState, newMState
-                                           ,msInstr, msMem, msStatus, statusOk)
+import qualified PPL2.VM.Memory.CodeSeg       as CodeSeg
+import qualified PPL2.VM.Memory.Segment       as Segment
+import           PPL2.VM.Memory.State         (MState, newMState
+                                              ,msInstr, msMem, msStatus, statusOk)
 
-import           PPL2.Control.Instructions
-import           PPL2.Control.MicroOps     (getInstr, getPC, incrPC)
-import           PPL2.Control.Types        (MicroInstr, runMicroCode, io)
+import           PPL2.VM.Control.Instructions
+import           PPL2.VM.Control.MicroOps     (getInstr, getPC, incrPC)
+import           PPL2.VM.Control.Types        (MicroInstr, runMicroCode, io)
 
-import           PPL2.ALU.Types            (ALU, getMnemonics)
+import           PPL2.VM.ALU.Types            (ALU, getMnemonics)
 
 import           PPL2.Pretty.Instr         (instrTrc)
 
-import           System.IO                 (stderr, hPutStrLn)
+import           System.IO                   (stderr, hPutStrLn)
 
 -- ----------------------------------------
 

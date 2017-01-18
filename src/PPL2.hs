@@ -6,8 +6,8 @@ import PPL2.VM
 import qualified PPL2.Machines.UntaggedInt as U
 import qualified PPL2.Machines.TaggedInt   as T
 
-import PPL2.Memory.State
-import qualified PPL2.Memory.Segment as Segment
+import           PPL2.VM.Memory.State
+import qualified PPL2.VM.Memory.Segment as Segment
 
 p1 :: [MInstr]
 p1 =

@@ -1,4 +1,4 @@
-module PPL2.Memory.CodeSeg
+module PPL2.VM.Memory.CodeSeg
        (CodeSeg, CodeSegment, get, new)
 where
 

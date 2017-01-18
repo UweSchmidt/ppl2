@@ -23,20 +23,20 @@ executable ppl2
                 PPL2.Prelude
                 PPL2.VM
                 PPL2.VM.Types
-                PPL2.ALU.Types
-                PPL2.ALU.IntegerArithmUnit
-                PPL2.ALU.MicroOps
-                PPL2.Control.Instructions
-                PPL2.Control.Loop
-                PPL2.Control.MicroOps
-                PPL2.Control.Types
+                PPL2.VM.ALU.Types
+                PPL2.VM.ALU.IntegerArithmUnit
+                PPL2.VM.ALU.MicroOps
+                PPL2.VM.Control.Instructions
+                PPL2.VM.Control.Loop
+                PPL2.VM.Control.MicroOps
+                PPL2.VM.Control.Types
                 PPL2.Machines.TaggedInt
                 PPL2.Machines.UntaggedInt
-                PPL2.Memory.CodeSeg
-                PPL2.Memory.RTS
-                PPL2.Memory.Segment
-                PPL2.Memory.Stack
-                PPL2.Memory.State
+                PPL2.VM.Memory.CodeSeg
+                PPL2.VM.Memory.RTS
+                PPL2.VM.Memory.Segment
+                PPL2.VM.Memory.Stack
+                PPL2.VM.Memory.State
                 PPL2.Pretty.Instr
                                 
   -- other-extensions:    

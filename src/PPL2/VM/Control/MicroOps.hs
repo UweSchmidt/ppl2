@@ -1,18 +1,18 @@
 {-# LANGUAGE RankNTypes #-} -- haskell mode wants this
 
-module PPL2.Control.MicroOps where
+module PPL2.VM.Control.MicroOps where
 
 import PPL2.Prelude
 import PPL2.VM.Types
 
-import qualified PPL2.Memory.RTS     as RTS
-import qualified PPL2.Memory.Segment as Segment
-import qualified PPL2.Memory.Stack   as Stack
-import qualified PPL2.Memory.CodeSeg as CodeSeg
-import           PPL2.Memory.State   (MStatus(..)
-                                     ,msInstr, msPC, msMem, msFrames, msStack)
+import qualified PPL2.VM.Memory.RTS     as RTS
+import qualified PPL2.VM.Memory.Segment as Segment
+import qualified PPL2.VM.Memory.Stack   as Stack
+import qualified PPL2.VM.Memory.CodeSeg as CodeSeg
+import           PPL2.VM.Memory.State   (MStatus(..)
+                                        ,msInstr, msPC, msMem, msFrames, msStack)
 
-import           PPL2.Control.Types  (MicroCode, MicroInstr, abort)
+import           PPL2.VM.Control.Types  (MicroCode, MicroInstr, abort)
 
 -- ----------------------------------------
 --

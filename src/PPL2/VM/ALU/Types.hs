@@ -1,8 +1,8 @@
-module PPL2.ALU.Types where
+module PPL2.VM.ALU.Types where
 
 import PPL2.Prelude
 import PPL2.VM.Types
-import PPL2.Control.Types    (MicroInstr)
+import PPL2.VM.Control.Types (MicroInstr)
 
 import           Data.IntMap (IntMap)
 import qualified Data.IntMap as M
@@ -25,7 +25,7 @@ addInstr :: CompInstrSet v -> ALU v -> ALU v
 addInstr is (ALU a)
   | null dmn  = alu
   | otherwise = error $
-                "PPL2.ALU.Types.addInstr: doublicated mnemonics " ++ show dmn
+                "PPL2.VM.ALU.Types.addInstr: doublicated mnemonics " ++ show dmn
   where
     alu = ALU $ L.foldl' (\ a' (i, mi) -> M.insert i mi a') a $ zip [mx..] is
     mx  = maybe 0 (+ 1) $ (fst . fst) <$> M.maxViewWithKey a

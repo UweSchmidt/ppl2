@@ -1,16 +1,16 @@
-module PPL2.Control.Instructions where
+module PPL2.VM.Control.Instructions where
 
 import PPL2.Prelude
 import PPL2.VM.Types
 
-import qualified PPL2.Memory.RTS       as RTS
-import qualified PPL2.Memory.Segment   as Segment
-import           PPL2.Memory.State     (MStatus(..), msFrames)
+import qualified PPL2.VM.Memory.RTS       as RTS
+import qualified PPL2.VM.Memory.Segment   as Segment
+import           PPL2.VM.Memory.State     (MStatus(..), msFrames)
 
-import           PPL2.Control.MicroOps
-import           PPL2.Control.Types    (MicroInstr, abort)
+import           PPL2.VM.Control.MicroOps
+import           PPL2.VM.Control.Types    (MicroInstr, abort)
 
-import           PPL2.ALU.Types        (ALU, getMicroInstr)
+import           PPL2.VM.ALU.Types        (ALU, getMicroInstr)
 
 -- ----------------------------------------
 --

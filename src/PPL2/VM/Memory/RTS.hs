@@ -1,12 +1,12 @@
-module PPL2.Memory.RTS
+module PPL2.VM.Memory.RTS
        (RTS, new, push, pop, get, put, getLocal, putLocal, toDataRef)
 where
 
 import PPL2.Prelude
 import PPL2.VM.Types
 
-import           PPL2.Memory.Segment (Segment)
-import qualified PPL2.Memory.Segment as Segment
+import           PPL2.VM.Memory.Segment (Segment)
+import qualified PPL2.VM.Memory.Segment as Segment
 
 import qualified Data.IntMap as M
 

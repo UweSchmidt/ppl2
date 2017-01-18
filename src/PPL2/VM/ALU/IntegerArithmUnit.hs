@@ -1,10 +1,9 @@
-module PPL2.ALU.IntegerArithmUnit where
+module PPL2.VM.ALU.IntegerArithmUnit where
 
 import PPL2.Prelude
 import PPL2.VM.Types
-import PPL2.Control.Types ()
-import PPL2.ALU.MicroOps
-import PPL2.ALU.Types     (CompInstrSet)
+import PPL2.VM.ALU.MicroOps
+import PPL2.VM.ALU.Types     (CompInstrSet)
 
 -- ----------------------------------------
 --

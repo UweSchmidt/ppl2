@@ -13,8 +13,7 @@ module PPL2.Machines.UntaggedInt where
 
 import PPL2.Prelude
 import PPL2.VM
-
-import PPL2.ALU.IntegerArithmUnit
+import PPL2.VM.ALU.IntegerArithmUnit
 
 import Data.Bits (shiftR, shiftL, (.|.), (.&.))
 
@@ -36,8 +35,11 @@ instance DataRefValue MV where
     where
       isoWordRef = iso toRef frRef
 
-      toRef w = (fromEnum w `shiftR` 32, w .&. 0xffffffff)
-      frRef (sid, i) =  toEnum sid `shiftL` 32 .|. i
+      toRef w =
+        (fromEnum w `shiftR` 32, w .&. 0xffffffff)
+
+      frRef (sid, i) =
+        toEnum sid `shiftL` 32 .|. i
 
 instance CodeRefValue MV where
   _CodeRef = _Word

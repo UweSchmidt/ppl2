@@ -2,8 +2,8 @@ module PPL2.Pretty.Instr where
 
 import PPL2.Prelude
 import PPL2.VM.Types
-import PPL2.ALU.Types     (Mnemonics)
-import PPL2.Control.Types (MicroInstr)
+import PPL2.VM.ALU.Types     (Mnemonics)
+import PPL2.VM.Control.Types (MicroInstr)
 
 -- ----------------------------------------
 

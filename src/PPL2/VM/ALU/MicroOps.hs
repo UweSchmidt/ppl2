@@ -1,12 +1,11 @@
 {-# LANGUAGE RankNTypes #-} -- haskell-mode wants this
 
-module PPL2.ALU.MicroOps where
+module PPL2.VM.ALU.MicroOps where
 
 import PPL2.Prelude
 import PPL2.VM.Types
-
-import           PPL2.Control.MicroOps (pushMV, popMV)
-import           PPL2.Control.Types    (MicroInstr)
+import PPL2.VM.Control.MicroOps (pushMV, popMV)
+import PPL2.VM.Control.Types    (MicroInstr)
 
 -- ----------------------------------------
 --

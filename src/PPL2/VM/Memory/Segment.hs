@@ -1,4 +1,4 @@
-module PPL2.Memory.Segment
+module PPL2.VM.Memory.Segment
        (Segment, get, put, new, newInit, toDataRef, dump)
 where
 

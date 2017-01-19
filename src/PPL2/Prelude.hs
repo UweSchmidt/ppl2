@@ -18,8 +18,9 @@ where
 import Control.Lens
 import Control.Monad
 
-import Data.Maybe hiding (fromJust)
-import Data.Word (Word)
+import Data.Bifunctor
+import Data.Maybe     hiding (fromJust)
+import Data.Word      (Word)
 
 -- ----------------------------------------
 --

@@ -40,6 +40,35 @@ data Instr op lab
   | Label   lab          -- pseudo instr for assembler code gen
                          -- will be removed during assembly, acts a noop
 
+instance Bifunctor Instr where
+  bimap _ g (Br b    l)  = Br b    (g l)
+  bimap _ g (Jump    l)  = Jump    (g l)
+  bimap _ g (SRJump  l)  = SRJump  (g l)
+  bimap _ g (LoadLab l)  = LoadLab (g l)
+  bimap _ g (Label   l)  = Label   (g l)
+
+  bimap f _ (Comp o)     = Comp    (f o)
+
+  bimap _ _ (Load  a)    = Load  a
+  bimap _ _ (Store a)    = Store a
+  bimap _ _ (LoadInd)    = LoadInd
+  bimap _ _ (StoreInd)   = StoreInd
+  bimap _ _ (LoadI i)    = LoadI i
+  bimap _ _ (Pop)        = Pop
+  bimap _ _ (Dup)        = Dup
+  bimap _ _ (Swap)       = Swap
+  bimap _ _ (LoadAddr a) = LoadAddr a
+  bimap _ _ (JumpInd)    = JumpInd
+  bimap _ _ (SRJumpInd)  = SRJumpInd
+  bimap _ _ (Enter o)    = Enter o
+  bimap _ _ (Leave)      = Leave
+  bimap _ _ (Term)       = Term
+
+instance Functor (Instr op) where
+  fmap = bimap id
+
+-- ----------------------------------------
+
 -- machine instructions
 type MInstr = Instr OpCode Displ
 

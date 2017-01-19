@@ -44,7 +44,7 @@ data Instr op lab
 type MInstr = Instr OpCode Displ
 
 -- assembler instructions
-type AInstr = Instr Label
+type AInstr = Instr Mnemonic Label
 
 -- the opcode for the configuable set of operations
 type OpCode       = Int

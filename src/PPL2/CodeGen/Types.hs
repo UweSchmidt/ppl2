@@ -54,19 +54,23 @@ newLabel = do
 
 -- ----------------------------------------
 
--- the hole in the ExOp is for different kinds of constants
--- these must be allocated in different ways, maybe by initializing
--- some global data segment
+-- | an expression is represented as a rose tree
+--
+-- The attributes at the inner nodes are Mnemonics of the operation
+-- to be performed. At the leaves there are addresses for variable
+-- access or litterals.
+--
+-- What a concrete literal is remains open and is determined by the type
+-- parameter. How a literal is compiled remains also open, v must be an
+-- instance of the LoadLit class
+
+type Expr  v = Tree (ExOp v)
+type Exprs v = [Expr v]
 
 data ExOp v = Opr Mnemonic
             | Lit v
             | Adr Address
-              deriving Show
-
-type Ident = String
-
-type Expr  v = Tree (ExOp v)
-type Exprs v = [Expr v]
+              deriving Show -- just for testing
 
 -- ----------------------------------------
 

@@ -36,6 +36,6 @@ integerArithmeticUnit = newCInstrSet
   ]
   where
     intNE0 :: WordValue v => Prism' v Int
-    intNE0 = _Int . prismPred (/= 0)
+    intNE0 = _Int . filtered (/= 0)
 
 -- ----------------------------------------

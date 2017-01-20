@@ -11,6 +11,7 @@ module PPL2.Prelude
        , module Control.Lens
        , module Control.Monad
        , module Data.Maybe
+       , module Data.Monoid
        , module Data.Word
        )
 where
@@ -20,6 +21,7 @@ import Control.Monad
 
 import Data.Bifunctor
 import Data.Maybe     hiding (fromJust)
+import Data.Monoid
 import Data.Word      (Word)
 
 -- ----------------------------------------

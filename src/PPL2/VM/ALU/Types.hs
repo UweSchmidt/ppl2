@@ -15,7 +15,6 @@ import qualified Data.List   as L
 type    CInstr     v = (Mnemonic, MicroInstr v)
 type    CInstrList v = [CInstr v]
 type    CInstrSet  v = MapMnemonics (MicroInstr v)
-type    Mnemonics    = [Mnemonic]
 
 newtype MapMnemonics a =
   CIS {unCIS :: Map Mnemonic a}

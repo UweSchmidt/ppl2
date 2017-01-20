@@ -90,9 +90,12 @@ type Displ        = Int
 -- addresses reference a cell in the main data segment or in the top stack frame
 data Address      = LocA Offset
                   | AbsA Offset
+                    deriving Show
 
 -- symbolic opcodes for assembler instructions
 type Mnemonic     = String
+
+type Mnemonics    = [Mnemonic]
 
 -- ----------------------------------------
 --

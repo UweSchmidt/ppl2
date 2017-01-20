@@ -75,6 +75,9 @@ type MInstr = Instr OpCode Displ
 -- assembler instructions
 type AInstr = Instr Mnemonic Label
 
+type ACode  = [AInstr]
+type MCode  = [MInstr]
+
 -- the opcode for the configuable set of operations
 type OpCode       = Int
 

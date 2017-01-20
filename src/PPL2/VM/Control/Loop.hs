@@ -10,7 +10,7 @@ import           PPL2.VM.Memory.State         (MState, newMState
 import           PPL2.VM.Control.Instructions
 import           PPL2.VM.Control.MicroOps     (getInstr, getPC, incrPC)
 import           PPL2.VM.Control.Types        (MicroInstr, runMicroCode, io)
-import           PPL2.VM.ALU.Types            (ALU, getMnemonics)
+import           PPL2.VM.ALU.Types
 import           PPL2.VM.Pretty.Instr         (instrTrc)
 
 import           System.IO                   (stderr, hPutStrLn)
@@ -18,9 +18,9 @@ import           System.IO                   (stderr, hPutStrLn)
 -- ----------------------------------------
 
 execProg' :: CoreValue v =>
-             ALU v -> Bool -> [MInstr] -> [v] -> IO (MState v)
-execProg' alu trc is vs =
-  snd <$> runMicroCode (initMem >> execLoop trcOutput alu) newMState
+             CInstrSet v -> Bool -> [MInstr] -> [v] -> IO (MState v)
+execProg' iset trc is vs =
+  snd <$> runMicroCode (initMem >> execLoop trcOutput iset) newMState
   where
     initMem = do
       msInstr .= CodeSeg.new     is
@@ -34,11 +34,13 @@ execProg' alu trc is vs =
 
 execLoop :: CoreValue v =>
           (String -> MicroInstr v) ->    -- the trace output cmd
-          ALU v   ->                     -- the arithmetic locical unit
+          CInstrSet v ->                 -- the instruction set
           MicroInstr v
-execLoop trc alu = go
+execLoop trc iset = go
   where
-    instructionTrace = instrTrc (getMnemonics alu) trc
+    alu = toALU iset
+    mns = toMnemonics iset
+    instructionTrace = instrTrc mns trc
 
     go = do
       continue <- statusOk <$> use msStatus

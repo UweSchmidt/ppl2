@@ -2,6 +2,7 @@ module Main where
 
 import PPL2.Prelude
 import PPL2.VM
+import PPL2.CodeGen.Assemble
 
 import qualified PPL2.VM.Machines.UntaggedInt as U
 import qualified PPL2.VM.Machines.TaggedInt   as T
@@ -9,12 +10,25 @@ import qualified PPL2.VM.Machines.TaggedInt   as T
 import           PPL2.VM.Memory.State
 import qualified PPL2.VM.Memory.Segment as Segment
 
-p1 :: [MInstr]
-p1 =
+p1 :: MCode
+p1 = assemble U.instrSet
   [ Load (AbsA 0)
   , Load (AbsA 1)
-  , Comp 4                -- addi
+  , Comp "addi"
   , Store (AbsA 2)
+  , Load (AbsA 0)
+  , Load (AbsA 1)
+  , Comp "eqi"
+  , Br True "l1"
+  , LoadI 42
+  , Store (AbsA 3)
+  , Jump "l2"
+  , Label "l1"
+  , Load (AbsA 0)
+  , Load (AbsA 1)
+  , Comp "maxi"
+  , Store (AbsA 3)
+  , Label "l2"
   , Term
   ]
 
@@ -22,6 +36,7 @@ m1 :: [U.MV]
 m1 =
   [ _Int # 1
   , _Int # 2
+  , _Default # ()
   , _Default # ()
   ]
 

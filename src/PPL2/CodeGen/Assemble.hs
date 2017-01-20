@@ -1,47 +1,47 @@
-module PPL2.CodeGen.Assemble where
+module PPL2.CodeGen.Assemble
+  (assemble)
+where
 
 import PPL2.Prelude
 import PPL2.VM
 
+import qualified Data.Map as M
+
 -- ----------------------------------------
 
-type ACode op   = [Instr op Label]
-type MCode op   = [Instr op Displ]
+type LabTab     = M.Map Label Offset
 
-type LabTab     = [(Label, Offset)]
+-- ----------------------------------------
 
-resolveLabels :: ACode op -> MCode op
-resolveLabels is =
-  zipWith (compDispl labTab) [0..] is'
+assemble :: CInstrSet v -> ACode -> MCode
+assemble inset is =
+  zipWith toMInstr [0..] is'
   where
-    labTab    = buildLabTab [] 0 is
-    is'       = filter noLabelInstr is
+    toMInstr i = bimap opc' lval
+      where
+        lval l = labVal l labTab - i
 
-buildLabTab     :: LabTab -> Offset -> ACode op -> LabTab
+    labTab     = buildLabTab M.empty 0 is
+    labVal lab = fromIntegral .
+                 fromMaybe
+                 (error $ "PPL2.CodeGen.Assemble: undeclared label: " ++ show lab) .
+                 M.lookup lab
+    is'        = filter noLabelInstr is
 
-buildLabTab lt _ []
-    = lt
+    opc        = toOpCode inset
+    opc' mn    = fromMaybe
+                 (error $ "PPL2.CodeGen.Assemble: unknown mnemonic: " ++ show mn)
+                 (opc mn)
+    -- the errors indicate uncomplete or wrong code generation algorithms
+    -- therfore the hard abort
 
-buildLabTab lt i (Label l : is)
-    = buildLabTab ((l, i) : lt) i is
-
-buildLabTab lt i (_ : is)
-    = buildLabTab lt (i + 1) is
-
--- lookup label table
-
-labVal          :: Label -> LabTab -> Displ
-labVal lab lt
-    = fromIntegral . fromMaybe 0 . lookup lab $ lt
-
+buildLabTab     :: LabTab -> Offset -> [Instr op Label] -> LabTab
+buildLabTab lt _ []             = lt
+buildLabTab lt i (Label l : is) = buildLabTab (M.insert l i lt)  i      is
+buildLabTab lt i (_       : is) = buildLabTab               lt  (i + 1) is
 
 noLabelInstr           :: Instr op lab -> Bool
 noLabelInstr (Label _) = False
 noLabelInstr _         = True
-
-compDispl      :: LabTab -> Displ -> Instr op Label -> Instr op Displ
-compDispl lt i = fmap lval
-  where
-    lval l = labVal l lt - i
 
 -- ----------------------------------------

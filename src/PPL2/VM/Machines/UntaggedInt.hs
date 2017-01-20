@@ -51,9 +51,10 @@ instance DefaultValue MV where
 
 -- ----------------------------------------
 
+instrSet :: CInstrSet MV
+instrSet = integerArithmeticUnit
+
 execProg :: Bool -> [MInstr] -> [MV] -> IO (MState MV)
-execProg = execProg' alu
-  where
-    alu = integerArithmeticUnit `addInstr` newAlu
+execProg = execProg' instrSet
 
 -- ----------------------------------------

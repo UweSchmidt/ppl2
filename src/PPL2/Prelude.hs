@@ -32,20 +32,6 @@ infixr 1 .->
 x .-> y = (x, y)
 
 -- ----------------------------------------
-
--- a predicate as prism
---
--- I'm sure, Edward has already something like this
--- but I didn't find it in the lens package
-
-prismPred :: (a -> Bool) -> Prism' a a
-prismPred p = prism id
-  (\ x -> case p x of
-      True -> Right x
-      _    -> Left  x
-  )
-
--- ----------------------------------------
 --
 -- collect all element, which occur
 -- more than once in a list

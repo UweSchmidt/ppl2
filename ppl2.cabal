@@ -60,6 +60,7 @@ executable ppl2
   default-extensions: ConstraintKinds
                       FlexibleInstances
                       GeneralizedNewtypeDeriving
+                      LambdaCase
                       MultiParamTypeClasses
                       RankNTypes
 

@@ -2,7 +2,6 @@ module PPL2.VM.Pretty.Instr where
 
 import PPL2.Prelude
 import PPL2.VM.Types
-import PPL2.VM.ALU.Types     (Mnemonics)
 import PPL2.VM.Control.Types (MicroInstr)
 
 -- ----------------------------------------
@@ -24,23 +23,23 @@ prettyInstr indent prettyOp prettyJmp prettyLab ins =
     pretty' :: [String]
     pretty' =
       case ins of
-        Load  (AbsA a)    -> ["loadG", show a]
-        Load  (LocA a)    -> ["loadL", show a]
-        Store (AbsA a)    -> ["storeG", show a]
-        Store (LocA a)    -> ["storeL", show a]
+        Load  (AbsA a)    -> ["loadGlb",  show a]
+        Load  (LocA a)    -> ["loadLoc",  show a]
+        Store (AbsA a)    -> ["storeGlb", show a]
+        Store (LocA a)    -> ["storeLoc", show a]
         LoadInd           -> ["loadInd"]
         StoreInd          -> ["storeInd"]
-        LoadI i           -> ["loadInt", show i]
+        LoadI i           -> ["loadInt",  show i]
         Pop               -> ["pop"]
         Dup               -> ["dup"]
         Swap              -> ["swap"]
         LoadAddr (AbsA a) -> ["loadAddrG", show a]
         LoadAddr (LocA a) -> ["loadAddrL", show a]
-        Br True  l        ->  "brTrue   " : prettyJmp l
-        Br False l        ->  "brFalse  " : prettyJmp l
-        Jump     l        ->  "jump     " : prettyJmp l
-        SRJump   l        ->  "srjump   " : prettyJmp l
-        LoadLab  l        ->  "loadlab  " : prettyJmp l
+        Br True  l        ->  "brTrue"    : prettyJmp l
+        Br False l        ->  "brFalse"   : prettyJmp l
+        Jump     l        ->  "jump"      : prettyJmp l
+        SRJump   l        ->  "srjump"    : prettyJmp l
+        LoadLab  l        ->  "loadlab"   : prettyJmp l
         JumpInd           -> ["jumpind"]
         SRJumpInd         -> ["srjumpind"]
         Enter ub          -> ["pushframe", show $ ub + 1]

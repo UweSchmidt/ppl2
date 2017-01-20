@@ -23,6 +23,7 @@ data MV
   | VWord !Word           -- an unsigned Int as machine word (???)
   | VDRef !SegId !Offset  -- address of a cell in a data segment
   | VCRef !CodeRef        -- address of an instruction
+  deriving Show
 
 -- ----------------------------------------
 --
@@ -61,7 +62,10 @@ instance DefaultValue MV where
 
 -- ----------------------------------------
 
+instrSet :: CInstrSet MV
+instrSet = integerArithmeticUnit
+
 execProg :: Bool -> [MInstr] -> [MV] -> IO (MState MV)
-execProg = execProg' integerArithmeticUnit
+execProg = execProg' instrSet
 
 -- ----------------------------------------

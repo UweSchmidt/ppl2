@@ -14,14 +14,30 @@ module PPL2.VM.Machines.UntaggedInt where
 import PPL2.Prelude
 import PPL2.VM
 import PPL2.VM.ALU.IntegerArithmUnit
+import PPL2.CodeGen
 
 import Data.Bits (shiftR, shiftL, (.|.), (.&.))
 
 -- ----------------------------------------
 
+type MLit    = Int
+
+type MExpr   = Expr Int
+
+instance LoadLit MLit where
+  gLoadLit i = return $ gLoadInt i
+
+genACode :: MExpr -> ACode
+genACode e =
+  either (const []) toACode res
+  where
+    (res, _gcs1) = runGC $ genCode (toMnemonics instrSet) e
+
+-- ----------------------------------------
+
 type MV      = Word
 
-type MCode a = MicroCode  MV a
+type MCode a = MicroCode MV a
 
 -- ----------------------------------------
 --

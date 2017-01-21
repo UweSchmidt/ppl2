@@ -27,8 +27,8 @@ iLoadInd = pop >>= toDataRef >>= getByDataRef >>= push
 
 iStoreInd :: DataRefValue v => MicroInstr v
 iStoreInd = do
-  v <- pop
-  pop >>= toDataRef >>= flip putByDataRef v
+  v <- pop >>= toDataRef     -- get the address
+  pop >>= putByDataRef v     -- get the value and store it
 
 iLoadI :: WordValue v => Int -> MicroInstr v
 iLoadI i = push $ _Int # i

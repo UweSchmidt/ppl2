@@ -32,8 +32,8 @@ newtype GenCode v a
            , MonadError (GCError v)
            )
 
-runGC :: GenCode v a -> GCState -> (Either (GCError v) a, GCState)
-runGC = runState . runExceptT . unGC
+runGC :: GenCode v a -> (Either (GCError v) a, GCState)
+runGC = flip (runState . runExceptT . unGC) newGCState
 
 abortGC :: GCError v -> GenCode v a
 abortGC = throwError
@@ -53,6 +53,11 @@ data GCState
   = GCS { _labCnt :: Int
         }
     deriving Show
+
+newGCState :: GCState
+newGCState =
+  GCS { _labCnt = 1
+      }
 
 labCnt :: Lens' GCState Int
 labCnt k s = (\ new -> s {_labCnt = new}) <$> k (_labCnt s)

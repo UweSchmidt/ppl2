@@ -32,7 +32,7 @@ p1' =
   , LoadAddr (AbsA 1)
   , LoadInd
   , LoadAddr (AbsA 4)
-  , Swap
+--  , Swap  -- no swap, address is on top of stack, the value below
   , StoreInd
   , Term
   ]

@@ -27,6 +27,11 @@ genCode mns = go
       | Just v <- e ^? lit =
           gLoadLit v
 
+      -- load indirect, dereference
+      | Just ae <- e ^? hasOp (== "*") . expr1 . _2 = do
+          cae <- go ae
+          return $ cae <> gLoadInd
+
       -- gen code for a compute instr
       | Just (opr, es) <- e ^? hasOp (`elem` mns) . expr = do
           cs <- traverse go es
@@ -65,7 +70,36 @@ genCode mns = go
             , gBrTrue l2
             ]
 
+      -- code for a sequence of values
+      | Just es <- e ^? hasOp (== ",") . expr . _2 =
+          mconcat <$> traverse go es
+
+      -- code for single and multiple assignments
+      | Just (lhs, rhs) <- e ^? hasOp (== ":=") . expr2 . _2 = do
+          crhs <- go rhs
+          clhs <- store lhs
+          return $ crhs <> clhs
+
       | otherwise =
           abortGC $ errGCExpr e
+
+    -- code for storing values
+    store e
+      -- store under given address
+      | Just a <- e ^? address =
+          return $ gStore a
+
+      -- a sequence of stores as in  x,y := y,x
+      | Just as <- e ^? hasOp (== ",") . expr . _2 =
+          mconcat <$> traverse store (reverse as)
+
+      -- an indirect store with computed address
+      | Just ae <- e ^? hasOp (== "*") . expr1 . _2 = do
+          cae <- go ae
+          return $ cae <> gStoreInd
+
+      -- discard a value, like (void) := .... or in C <expr>;
+      | Just _ <- e ^? hasOp (== "pop") . expr0 =
+          return $ gPop
 
 -- ----------------------------------------

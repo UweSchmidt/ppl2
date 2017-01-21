@@ -28,6 +28,21 @@ toACode (BU f) = f []
 gLoad :: Address -> Code
 gLoad = gi . Load
 
+gLoadInt :: Int -> Code
+gLoadInt = gi . LoadI
+
+gLoadInd :: Code
+gLoadInd = gi LoadInd
+
+gStore :: Address -> Code
+gStore = gi . Store
+
+gStoreInd :: Code
+gStoreInd = gi StoreInd
+
+gPop :: Code
+gPop = gi Pop
+
 gComp :: Mnemonic -> Code
 gComp = gi . Comp
 

@@ -70,8 +70,9 @@ genCode mns = go
             , gBrTrue l2
             ]
 
-      -- code for a sequence of values
-      | Just es <- e ^? hasOp (== ",") . expr . _2 =
+      -- code for tuple construction
+      -- and sequences of expressions, in C ","-expressions
+      | Just es <- e ^? hasOp (`elem` [",", ";"]) . expr . _2 =
           mconcat <$> traverse go es
 
       -- code for single and multiple assignments
@@ -89,6 +90,7 @@ genCode mns = go
       | Just a <- e ^? address =
           return $ gStore a
 
+      -- code for tuple deconstruction
       -- a sequence of stores as in  x,y := y,x
       | Just as <- e ^? hasOp (== ",") . expr . _2 =
           mconcat <$> traverse store (reverse as)
@@ -98,8 +100,30 @@ genCode mns = go
           cae <- go ae
           return $ cae <> gStoreInd
 
-      -- discard a value, like (void) := .... or in C <expr>;
+      -- discard a value, like in C expr statements, <expr>;
+      -- move the result of an expression into a black hole
       | Just _ <- e ^? hasOp (== "pop") . expr0 =
           return $ gPop
+
+      | otherwise =
+          abortGC $ errGCExpr e
+
+    branch lab b e
+      | Just e1 <- e ^? hasOp (== "not") . expr1 . _2 =
+          branch lab (not b) e1
+      | Just (e1, e2) <- e ^? hasOp (== "&&") . expr2 . _2 =
+          case b of
+            True -> do
+              lab1 <- newLabel
+              ce1 <- branch lab1 (not b) e1
+              ce2 <- branch lab       b  e2
+              return $ ce1 <> ce2 <> gLabel lab1
+            _ -> do
+              ce1 <- branch lab b e1
+              ce2 <- branch lab b e2
+              return $ ce1 <> ce2
+
+      | otherwise =
+          abortGC $ errGCExpr e
 
 -- ----------------------------------------

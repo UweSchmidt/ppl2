@@ -10,12 +10,7 @@ import PPL2.CodeGen.Monad
 
 -- ----------------------------------------
 
-class LoadLit v where
-  gLoadLit :: v -> GenCode v Code
-
--- ----------------------------------------
-
-genCode :: (CoreValue v, LoadLit v) => Mnemonics -> Expr v -> GenCode v Code
+genCode :: (CoreValue v) => Mnemonics -> Expr v -> GenCode v Code
 genCode mns = go
   where
     go e
@@ -23,9 +18,13 @@ genCode mns = go
       | Just a <- e ^? address =
           return $ gLoad a
 
+      -- load an Int literal
+      | Just v <- e ^? lit . _Int =
+          return $ gLoadInt v
+
       -- load a literal
       | Just v <- e ^? lit =
-          gLoadLit v
+          return $ undefined -- gLoadInt v
 
       -- load indirect, dereference
       | Just ae <- e ^? hasOp (== "*") . expr1 . _2 = do

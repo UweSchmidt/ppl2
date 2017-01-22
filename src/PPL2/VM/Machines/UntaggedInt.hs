@@ -20,12 +20,7 @@ import Data.Bits (shiftR, shiftL, (.|.), (.&.))
 
 -- ----------------------------------------
 
-type MLit    = Int
-
-type MExpr   = Expr Int
-
-instance LoadLit MLit where
-  gLoadLit i = return $ gLoadInt i
+type MExpr   = Expr MV
 
 genACode :: MExpr -> ACode
 genACode e =

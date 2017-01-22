@@ -25,7 +25,8 @@ type Exprs v = [Expr v]
 data ExOp v = Opr Mnemonic
             | Lit v
             | Adr Address
-              deriving Show -- just for testing
+            | Lab Label
+            deriving Show -- just for testing
 
 -- ----------------------------------------
 --
@@ -36,6 +37,14 @@ address = prism
   (\ i -> Node (Adr i) [])
   (\ case
       Node (Adr i) _xs -> Right i
+      x                -> Left  x
+  )
+
+label :: Prism' (Expr a) Label
+label = prism
+  (\ i -> Node (Lab i) [])
+  (\ case
+      Node (Lab i) _xs -> Right i
       x                -> Left  x
   )
 

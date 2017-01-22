@@ -35,6 +35,9 @@ gLoadInt = gi . LoadI
 gLoadInd :: Code
 gLoadInd = gi LoadInd
 
+gLoadLab :: Label -> Code
+gLoadLab = gi . LoadLab
+
 gStore :: Address -> Code
 gStore = gi . Store
 
@@ -53,10 +56,22 @@ gJump = gi . Jump
 gLabel :: Label -> Code
 gLabel = gi . Label
 
+gSRJump :: Label -> Code
+gSRJump = gi . SRJump
+
+gSRJumpInd :: Code
+gSRJumpInd = gi SRJumpInd
+
 gBrFalse :: Label -> Code
 gBrFalse = gi . Br False
 
 gBrTrue :: Label -> Code
 gBrTrue = gi . Br True
+
+gEnter :: Offset -> Code
+gEnter = gi . Enter
+
+gLeave :: Code
+gLeave = gi Leave
 
 -- ----------------------------------------

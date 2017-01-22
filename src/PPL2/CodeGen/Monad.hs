@@ -7,6 +7,9 @@ module PPL2.CodeGen.Monad
   , abortGC
   , errGCExpr
   , newLabel
+  , newGlobals
+  , newGlobVal
+  , addFctCode
   )
 where
 
@@ -54,6 +57,7 @@ data GCState v
   = GCS { _labCnt     :: Int
         , _globSegCnt :: Offset
         , _globSeg    :: Builder v
+        , _fctCode    :: Code
         }
 --    deriving Show
 
@@ -62,6 +66,7 @@ newGCState =
   GCS { _labCnt     = 1
       , _globSegCnt = 0
       , _globSeg    = mempty
+      , _fctCode    = mempty
       }
 
 labCnt :: Lens' (GCState v) Int
@@ -73,14 +78,26 @@ globSegCnt k s = (\ new -> s {_globSegCnt = new}) <$> k (_globSegCnt s)
 globSeg :: Lens' (GCState v) (Builder v)
 globSeg k s = (\ new -> s {_globSeg = new}) <$> k (_globSeg s)
 
+fctCode :: Lens' (GCState v) Code
+fctCode k s = (\ new -> s {_fctCode = new}) <$> k (_fctCode s)
+
 newLabel :: GenCode v Label
 newLabel = do
   i <- labCnt <+= 1
   return $ 'l' : show i
 
+newGlobals :: Offset -> v -> GenCode v ()
+newGlobals len def = do
+  globSeg %= (<> BU (replicate (fromIntegral len) def ++))
+  globSegCnt += len
+
 newGlobVal :: v -> GenCode v Address
 newGlobVal v = do
-  globSeg %= (<> BU (v:))
+  globSeg %= (<> BU (v :))
   AbsA <$> (globSegCnt <+= 1)
+
+addFctCode :: Code -> GenCode v ()
+addFctCode is =
+  fctCode %= (<> is)
 
 -- ----------------------------------------

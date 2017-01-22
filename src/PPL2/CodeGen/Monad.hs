@@ -13,6 +13,7 @@ where
 import PPL2.Prelude
 import PPL2.VM.Types
 import PPL2.CodeGen.Types
+import PPL2.CodeGen.Builder
 
 -- ----------------------------------------
 
@@ -24,15 +25,15 @@ import Control.Monad.State  (State(..), MonadState, runState)
 -- ----------------------------------------
 
 newtype GenCode v a
-  = GC { unGC :: ExceptT (GCError v) (State GCState) a }
+  = GC { unGC :: ExceptT (GCError v) (State (GCState v)) a }
   deriving ( Functor
            , Applicative
            , Monad
-           , MonadState GCState
+           , MonadState (GCState v)
            , MonadError (GCError v)
            )
 
-runGC :: GenCode v a -> (Either (GCError v) a, GCState)
+runGC :: GenCode v a -> (Either (GCError v) a, GCState v)
 runGC = flip (runState . runExceptT . unGC) newGCState
 
 abortGC :: GCError v -> GenCode v a
@@ -49,22 +50,37 @@ errGCExpr = GCE "can't gencode" . Just
 
 -- ----------------------------------------
 
-data GCState
-  = GCS { _labCnt :: Int
+data GCState v
+  = GCS { _labCnt     :: Int
+        , _globSegCnt :: Offset
+        , _globSeg    :: Builder v
         }
-    deriving Show
+--    deriving Show
 
-newGCState :: GCState
+newGCState :: GCState v
 newGCState =
-  GCS { _labCnt = 1
+  GCS { _labCnt     = 1
+      , _globSegCnt = 0
+      , _globSeg    = mempty
       }
 
-labCnt :: Lens' GCState Int
+labCnt :: Lens' (GCState v) Int
 labCnt k s = (\ new -> s {_labCnt = new}) <$> k (_labCnt s)
+
+globSegCnt :: Lens' (GCState v) Offset
+globSegCnt k s = (\ new -> s {_globSegCnt = new}) <$> k (_globSegCnt s)
+
+globSeg :: Lens' (GCState v) (Builder v)
+globSeg k s = (\ new -> s {_globSeg = new}) <$> k (_globSeg s)
 
 newLabel :: GenCode v Label
 newLabel = do
   i <- labCnt <+= 1
-  return $ 'L' : show i
+  return $ 'l' : show i
+
+newGlobVal :: v -> GenCode v Address
+newGlobVal v = do
+  globSeg %= (<> BU (v:))
+  AbsA <$> (globSegCnt <+= 1)
 
 -- ----------------------------------------

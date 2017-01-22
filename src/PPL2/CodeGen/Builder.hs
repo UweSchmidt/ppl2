@@ -14,6 +14,7 @@ instance Monoid (Builder a) where
   mempty = BU id
   BU x `mappend` BU y = BU $ x . y
 
+-- ----------------------------------------
 
 type Code = Builder AInstr
 

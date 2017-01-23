@@ -167,7 +167,7 @@ genCode mns = go
 
       -- discard a value, like in C expr statements, <expr>;
       -- remove the top of eval stack
-      | Just _ <- e ^? hasOp (== "pop") . expr0 =
+      | Just _ <- e ^? hasOp (== "void") . expr0 =
           return $ gPop
 
       -- code for tuple deconstruction
@@ -184,11 +184,6 @@ genCode mns = go
       -- tuple
       | Just as <- e ^? hasOp (== ",") . expr . _2 =
           sum $ map noOfArgs as
-
-      -- multiplyer for moving blocks of values, not yet implemented in store or load codegen
-      | Just (e1, e2) <- e ^? hasOp (== "rep") . expr2 . _2
-      , Just n <- e2 ^? lit . _Int =
-          n * noOfArgs e1
 
       -- a single value has to be moved
       | otherwise =

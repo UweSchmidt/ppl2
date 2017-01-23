@@ -44,19 +44,22 @@ genCode mns = go
           ccall   <- call fct
           return $ cparams <> ccall
 
-      -- conversion to void, discard the result
-      | Just e1 <- e ^? hasOp (== "(void)") . expr1 . _2 =
-          go $
-          expr2 # ("=", ( expr0 # "pop"
-                         , e1
-                         )
-                  )
-
       -- code for single and multiple assignments
-      | Just (lhs, rhs) <- e ^? hasOp (== "=") . expr2 . _2 = do
-          crhs <- go rhs
+      --
+      -- ":=" consumes then values on the eval stack
+      -- so it's not suited to assignments in C in a context like "(x = ...) + ..."
+      --
+      -- "copy" is like ":=" but without
+      -- consuming the values on the evaluation stack
+
+      | Just (o, (lhs, rhs)) <- e ^? hasOp (`elem` [":=", "copy"]) . expr2 = do
+          let n    = noOfArgs lhs   -- the # of values to be moved
+          let cdup = if o == ":="
+                     then mempty
+                     else mconcat $ replicate n (gDup $ fromIntegral (n - 1))
+          crhs <- go    rhs
           clhs <- store lhs
-          return $ crhs <> clhs
+          return $ crhs <> cdup <> clhs
 
       -- code for tuple construction, like e1, e2, e3 in Lua or Ruby
       -- or actual param lists in C
@@ -157,24 +160,39 @@ genCode mns = go
       | Just a <- e ^? address =
           return $ gStore a
 
-      -- code for tuple deconstruction
-      -- a sequence of stores as in  x,y = y,x
-      | Just as <- e ^? hasOp (== ",") . expr . _2 =
-          mconcat <$> traverse store (reverse as)
-
       -- an indirect store with computed address
       | Just ae <- e ^? hasOp (== "*") . expr1 . _2 = do
           cae <- go ae
           return $ cae <> gStoreInd
 
       -- discard a value, like in C expr statements, <expr>;
-      -- move the result of an expression into a black hole
-      -- (convert to void)
+      -- remove the top of eval stack
       | Just _ <- e ^? hasOp (== "pop") . expr0 =
           return $ gPop
 
+      -- code for tuple deconstruction
+      -- a sequence of stores as in  x,y = ...
+      -- the list must be reversed, last value is on top of stack
+      | Just as <- e ^? hasOp (== ",") . expr . _2 =
+          mconcat <$> traverse store (reverse as)
+
       | otherwise =
           abortGC $ errGCExpr e
+
+    -- compute the # of values to be stored
+    noOfArgs e
+      -- tuple
+      | Just as <- e ^? hasOp (== ",") . expr . _2 =
+          sum $ map noOfArgs as
+
+      -- multiplyer for moving blocks of values, not yet implemented in store or load codegen
+      | Just (e1, e2) <- e ^? hasOp (== "rep") . expr2 . _2
+      , Just n <- e2 ^? lit . _Int =
+          n * noOfArgs e1
+
+      -- a single value has to be moved
+      | otherwise =
+          1
 
     -- --------------------
 

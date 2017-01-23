@@ -47,6 +47,9 @@ gStoreInd = gi StoreInd
 gPop :: Code
 gPop = gi Pop
 
+gDup :: Offset -> Code
+gDup = gi . Dup
+
 gComp :: Mnemonic -> Code
 gComp = gi . Comp
 

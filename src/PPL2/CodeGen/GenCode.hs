@@ -19,12 +19,15 @@ genCode mns = go
           return $ gLoad a
 
       -- load an Int literal
+      -- use LoadInt instr
       | Just v <- e ^? lit . _Int =
           return $ gLoadInt v
 
       -- load a literal
+      -- init a new cell in the global data segment
+      -- and gen code for loading this cell
       | Just v <- e ^? lit =
-          return $ undefined -- gLoadInt v
+          newGlobVal v >>= return . gLoad
 
       -- load indirect, dereference
       | Just ae <- e ^? hasOp (== "*") . expr1 . _2 = do

@@ -59,7 +59,7 @@ execLoop trc iset = go
           StoreInd   -> iStoreInd
           LoadI i    -> iLoadI i
           Pop        -> iPop
-          Dup        -> iDup
+          Dup   i    -> iDup i
           Swap       -> iSwap
           LoadAddr a -> iLoadAddr a
           Br b    t  -> iBr b t

@@ -122,6 +122,11 @@ pop = do
   msStack .= s'
   return v
 
+dup :: Offset -> MicroCode v v
+dup i =
+  uses msStack (Stack.getN i)
+  >>= check' EvalStackUnderflow
+
 pushMV :: Prism' v a -> a -> MicroInstr v
 pushMV pa v = push (pa # v)
 

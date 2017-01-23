@@ -44,8 +44,8 @@ iLoadAddr a =
 iPop :: MicroInstr v
 iPop = void pop
 
-iDup :: MicroInstr v
-iDup = do
+iDup :: Offset -> MicroInstr v
+iDup i = do
   v <- pop
   push v
   push v

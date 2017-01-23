@@ -31,7 +31,7 @@ prettyInstr indent prettyOp prettyJmp prettyLab ins =
         StoreInd          -> ["storeInd"]
         LoadI i           -> ["loadInt",  show i]
         Pop               -> ["pop"]
-        Dup               -> ["dup"]
+        Dup   i           -> ["dup",      show i]
         Swap              -> ["swap"]
         LoadAddr (AbsA a) -> ["loadAddrG", show a]
         LoadAddr (LocA a) -> ["loadAddrL", show a]

@@ -23,7 +23,7 @@ data Instr op lab
   | StoreInd             -- store indirect via ref from eval stack
   | LoadI Int            -- load an int onto eval stack
   | Pop                  -- remove a value from top of evaluation stack
-  | Dup                  -- duplicate the value on top of eval stack
+  | Dup Offset           -- copy a value in the eval stack to the top of stack
   | Swap                 -- swap the 2 topmost values on eval stack
   | LoadAddr Address     -- load effective address onto eval stack
   | Br Bool lab          -- conditional jump
@@ -55,7 +55,7 @@ instance Bifunctor Instr where
   bimap _ _ (StoreInd)   = StoreInd
   bimap _ _ (LoadI i)    = LoadI i
   bimap _ _ (Pop)        = Pop
-  bimap _ _ (Dup)        = Dup
+  bimap _ _ (Dup   i)    = Dup   i
   bimap _ _ (Swap)       = Swap
   bimap _ _ (LoadAddr a) = LoadAddr a
   bimap _ _ (JumpInd)    = JumpInd

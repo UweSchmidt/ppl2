@@ -10,8 +10,22 @@ import PPL2.CodeGen.Monad
 
 -- ----------------------------------------
 
-genCode :: (CoreValue v) => Mnemonics -> Expr v -> GenCode v Code
-genCode mns = go
+genACode :: CoreValue v => Mnemonics -> Expr v -> Either (GCError v) (ACode, [v])
+genACode mns e =
+  fst $ runGC genProg
+  where
+    genProg = do
+      c <- genCodeExpr mns e
+      f <- use fctCode
+      g <- use globSeg
+      return (toACode (c <> gTerminate <> f)
+             , builder2List g
+             )
+
+-- ----------------------------------------
+
+genCodeExpr :: CoreValue v => Mnemonics -> Expr v -> GenCode v Code
+genCodeExpr mns = go
   where
     go e
       -- load a variable

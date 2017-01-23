@@ -3,6 +3,7 @@ module Main where
 import PPL2.Prelude
 import PPL2.VM
 import PPL2.CodeGen
+import PPL2.VM.Pretty.Instr
 
 import qualified PPL2.VM.Machines.UntaggedInt as U
 import qualified PPL2.VM.Machines.TaggedInt   as T
@@ -60,8 +61,16 @@ m2 = m1'
 
 main :: IO ()
 main = do
+  putStrLn $ "machine code"
+  putStrLn $ prettyMCode (toMnemonics U.instrSet) p1
+
+  putStrLn $ "exec program"
   (MS instr pc stack mem frames status) <- U.execProg True p1 m1
+
+  putStrLn $ "\nglobal memory dump"
   print $ Segment.dump mem
+
+  putStrLn $ "\nmachine status register"
   print $ status
   return ()
 

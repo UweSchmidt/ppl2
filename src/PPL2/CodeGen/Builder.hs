@@ -8,11 +8,14 @@ import PPL2.VM.Types
 
 -- ----------------------------------------
 
-newtype Builder a = BU ([a] -> [a])
+newtype Builder a = BU {unBU :: ([a] -> [a])}
 
 instance Monoid (Builder a) where
   mempty = BU id
   BU x `mappend` BU y = BU $ x . y
+
+builder2List :: Builder a -> [a]
+builder2List = ($ []) . unBU
 
 -- ----------------------------------------
 
@@ -22,7 +25,7 @@ gi :: AInstr -> Code
 gi i = BU (i:)
 
 toACode :: Code -> ACode
-toACode (BU f) = f []
+toACode = builder2List
 
 -- ----------------------------------------
 
@@ -76,5 +79,8 @@ gEnter = gi . Enter
 
 gLeave :: Code
 gLeave = gi Leave
+
+gTerminate :: Code
+gTerminate = gi Term
 
 -- ----------------------------------------

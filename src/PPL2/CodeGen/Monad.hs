@@ -10,6 +10,8 @@ module PPL2.CodeGen.Monad
   , newGlobals
   , newGlobVal
   , addFctCode
+  , fctCode
+  , globSeg
   )
 where
 

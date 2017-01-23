@@ -22,11 +22,9 @@ import Data.Bits (shiftR, shiftL, (.|.), (.&.))
 
 type MExpr   = Expr MV
 
-genACode :: MExpr -> ACode
-genACode e =
-  either (const []) toACode res
-  where
-    (res, _gcs1) = runGC $ genCode (toMnemonics instrSet) e
+genAProg :: MExpr -> (ACode, [MV])
+genAProg e =
+  either (const ([], [])) id $ genACode (toMnemonics instrSet) e
 
 -- ----------------------------------------
 

@@ -7,7 +7,7 @@ import PPL2.VM.Control.Types (MicroInstr)
 -- ----------------------------------------
 
 prettyAddr :: Address -> String
-prettyAddr (AbsA i) = "m[" ++ show i ++ "]"
+prettyAddr (AbsA i) = "g[" ++ show i ++ "]"
 prettyAddr (LocA i) = "l[" ++ show i ++ "]"
 
 prettyInstr :: (String -> String) ->
@@ -23,10 +23,8 @@ prettyInstr indent prettyOp prettyJmp prettyLab ins =
     pretty' :: [String]
     pretty' =
       case ins of
-        Load  (AbsA a)    -> ["loadGlb",  show a]
-        Load  (LocA a)    -> ["loadLoc",  show a]
-        Store (AbsA a)    -> ["storeGlb", show a]
-        Store (LocA a)    -> ["storeLoc", show a]
+        Load  a           -> ["load",  prettyAddr a]
+        Store a           -> ["store", prettyAddr a]
         LoadInd           -> ["loadInd"]
         StoreInd          -> ["storeInd"]
         LoadI i           -> ["loadInt",  show i]
@@ -74,20 +72,33 @@ fillLeft n xs
 
 instrTrc :: Mnemonics -> (String -> MicroInstr v) -> MInstr -> Offset -> MicroInstr v
 instrTrc mns cmd ins pc' =
-  cmd line
+  cmd $ prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab ins
+
+-- ----------------------------------------
+
+prettyMCode :: Mnemonics -> MCode -> String
+prettyMCode mns is =
+  unlines $ zipWith pretty' [0..] is
   where
-    line = prettyInstr indent prettyOp prettyJmp prettyLab ins
+    pretty' pc' ins =
+      prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab ins
 
-    indent xs =
-      fillLeft 7 (show pc') ++ ":  " ++ xs
+-- ----------------------------------------
 
-    prettyOp op' =
-      fromMaybe ("undefinded-opcode-" ++ show op') . listToMaybe . drop op' $ mns
+indent :: Offset -> String -> String
+indent pc' xs =
+  fillLeft 7 (show pc') ++ ":  " ++ xs
 
-    prettyJmp disp =
-      [show disp, "--> " ++ show (pc' + toEnum disp)]
+prettyOp :: Mnemonics -> Int -> String
+prettyOp mns op' =
+  fromMaybe ("undefinded-opcode-" ++ show op') . listToMaybe . drop op' $ mns
 
-    prettyLab disp =
-      show disp ++ ":"
+prettyJmp :: Offset -> Int -> [String]
+prettyJmp pc' disp =
+  [show disp, "--> " ++ show (pc' + toEnum disp)]
+
+prettyLab :: Int -> String
+prettyLab disp =
+  show disp ++ ":"
 
 -- ----------------------------------------

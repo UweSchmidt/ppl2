@@ -10,6 +10,7 @@ module PPL2.Prelude
        ( module PPL2.Prelude
        , module Control.Lens
        , module Control.Monad
+       , module Data.Either
        , module Data.Maybe
        , module Data.Monoid
        , module Data.Word
@@ -21,6 +22,7 @@ import Control.Monad
 
 import Data.Bifunctor
 import Data.Maybe     hiding (fromJust)
+import Data.Either
 import Data.Monoid
 import Data.Word      (Word)
 

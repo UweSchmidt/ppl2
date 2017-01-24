@@ -11,6 +11,8 @@ import qualified PPL2.VM.Machines.TaggedInt   as T
 import           PPL2.VM.Memory.State
 import qualified PPL2.VM.Memory.Segment as Segment
 
+import System.Exit
+
 p1' :: ACode
 p1' =
   [ Load (AbsA 0)
@@ -47,14 +49,14 @@ m1' =
   , _Default # ()
   ]
 
-p1 :: MCode
-p1 = assemble U.instrSet p1'
+-- p1 :: MCode
+-- p1 = assemble U.instrSet p1'
 
 m1 :: [U.MV]
 m1 = m1'
 
 p2 :: MCode
-p2 = assemble T.instrSet p1'
+(e2, p2) = assemble T.instrSet p1'
 
 m2 :: [T.MV]
 m2 = m1'
@@ -63,6 +65,10 @@ main :: IO ()
 main = do
   putStrLn "assembler code"
   putStrLn $ prettyACode p1'
+
+  let (es, p1) = assemble U.instrSet p1'
+  unless (null es) $ do
+     die $ unlines ("assembly errors:" : es)
 
   putStrLn "machine code"
   putStrLn $ prettyMCode (toMnemonics U.instrSet) p1

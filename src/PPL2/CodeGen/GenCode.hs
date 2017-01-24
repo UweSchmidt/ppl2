@@ -7,14 +7,17 @@ import PPL2.VM.Types
 import PPL2.CodeGen.Types
 import PPL2.CodeGen.Builder
 import PPL2.CodeGen.Monad
+import PPL2.Pretty.CodeGen
 
 -- ----------------------------------------
 
 runGenCode :: (MonadError String m, CoreValue v) =>
-              Mnemonics -> Expr v -> m (ACode, [v])
-runGenCode mns e =
-  either (const $ throwError "error in codegeneration") return $
+              (v -> String) -> Mnemonics -> Expr v -> m (ACode, [v])
+runGenCode showV mns e =
+  either (throwError . msg) return $
   genACode mns e
+  where
+    msg (GCE s me) = s ++ "\n" ++ maybe "" (prettyGCExpr showV) me
 
 -- ----------------------------------------
 

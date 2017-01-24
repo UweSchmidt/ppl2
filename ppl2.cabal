@@ -40,7 +40,8 @@ executable ppl2
                 PPL2.CodeGen.Assemble
                 PPL2.CodeGen.Types
                 PPL2.Pretty.Instr
-                          
+                PPL2.Pretty.CodeGen
+                                          
   -- other-extensions:    
   build-depends:       base >=4.7
                      , array      >=0.4

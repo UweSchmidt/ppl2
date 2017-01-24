@@ -2,7 +2,7 @@
 
 module PPL2.CodeGen.Monad
   ( GenCode
-  , GCError
+  , GCError(..)
   , runGC
   , abortGC
   , errGCExpr

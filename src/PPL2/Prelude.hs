@@ -11,6 +11,7 @@ module PPL2.Prelude
        , module Control.Lens
        , module Control.Monad
        , module Control.Monad.Except
+       , module Data.Bifunctor
        , module Data.Either
        , module Data.Maybe
        , module Data.Monoid

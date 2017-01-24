@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module PPL2.CodeGen.Assemble
-  (assemble, runAssembler)
+  (assembleCode, runAssembler)
 where
 
 import PPL2.Prelude
@@ -26,12 +26,12 @@ runAssembler inset is
       throwError $ unlines $
       "error(s) in assembler" : es
   where
-    (es, cs) = assemble inset is
+    (es, cs) = assembleCode inset is
 
 -- ----------------------------------------
 
-assemble :: CInstrSet v -> ACode -> ([String], MCode)
-assemble inset is =
+assembleCode :: CInstrSet v -> ACode -> ([String], MCode)
+assembleCode inset is =
   partitionEithers $ zipWith toMInstr [0..] is'
   where
     toMInstr :: Int -> AInstr -> Either String MInstr

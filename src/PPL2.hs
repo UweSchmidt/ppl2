@@ -4,6 +4,7 @@ import PPL2.Prelude
 import PPL2.VM
 import PPL2.CodeGen
 import PPL2.Pretty.Instr
+import PPL2.Compile.Types
 
 import qualified PPL2.VM.Machines.UntaggedInt as U
 import qualified PPL2.VM.Machines.TaggedInt   as T
@@ -11,7 +12,13 @@ import qualified PPL2.VM.Machines.TaggedInt   as T
 import           PPL2.VM.Memory.State
 import qualified PPL2.VM.Memory.Segment as Segment
 
-import System.Exit
+
+genCode' :: Expr U.MV -> RunCompile (ACode, [U.MV])
+genCode' = genCode (toMnemonics U.instrSet)
+
+assemble' = undefined
+
+execProg' = undefined
 
 p1' :: ACode
 p1' =
@@ -56,7 +63,7 @@ m1 :: [U.MV]
 m1 = m1'
 
 p2 :: MCode
-(e2, p2) = assemble T.instrSet p1'
+(e2, p2) = assembleCode T.instrSet p1'
 
 m2 :: [T.MV]
 m2 = m1'
@@ -66,7 +73,7 @@ main = do
   putStrLn "assembler code"
   putStrLn $ prettyACode p1'
 
-  let (es, p1) = assemble U.instrSet p1'
+  let (es, p1) = assembleCode U.instrSet p1'
   unless (null es) $ do
      die $ unlines ("assembly errors:" : es)
 

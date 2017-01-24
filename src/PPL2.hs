@@ -3,7 +3,7 @@ module Main where
 import PPL2.Prelude
 import PPL2.VM
 import PPL2.CodeGen
-import PPL2.VM.Pretty.Instr
+import PPL2.Pretty.Instr
 
 import qualified PPL2.VM.Machines.UntaggedInt as U
 import qualified PPL2.VM.Machines.TaggedInt   as T

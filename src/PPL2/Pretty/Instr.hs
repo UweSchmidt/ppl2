@@ -1,4 +1,4 @@
-module PPL2.VM.Pretty.Instr where
+module PPL2.Pretty.Instr where
 
 import PPL2.Prelude
 import PPL2.VM.Types

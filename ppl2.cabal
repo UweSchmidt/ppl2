@@ -37,9 +37,9 @@ executable ppl2
                 PPL2.VM.Memory.Segment
                 PPL2.VM.Memory.Stack
                 PPL2.VM.Memory.State
-                PPL2.VM.Pretty.Instr
                 PPL2.CodeGen.Assemble
                 PPL2.CodeGen.Types
+                PPL2.Pretty.Instr
                           
   -- other-extensions:    
   build-depends:       base >=4.7

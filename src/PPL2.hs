@@ -61,16 +61,19 @@ m2 = m1'
 
 main :: IO ()
 main = do
-  putStrLn $ "machine code"
+  putStrLn "assembler code"
+  putStrLn $ prettyACode p1'
+
+  putStrLn "machine code"
   putStrLn $ prettyMCode (toMnemonics U.instrSet) p1
 
-  putStrLn $ "exec program"
+  putStrLn "exec program"
   (MS instr pc stack mem frames status) <- U.execProg True p1 m1
 
-  putStrLn $ "\nglobal memory dump"
+  putStrLn   "\nglobal memory dump"
   print $ Segment.dump mem
 
-  putStrLn $ "\nmachine status register"
+  putStrLn "\nmachine status register"
   print $ status
   return ()
 

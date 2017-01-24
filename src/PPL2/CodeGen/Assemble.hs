@@ -34,6 +34,7 @@ assemble inset is =
                  (opc mn)
     -- the errors indicate uncomplete or wrong code generation algorithms
     -- therfore the hard abort
+    -- TODO: remove this hack
 
 buildLabTab     :: LabTab -> Offset -> [Instr op Label] -> LabTab
 buildLabTab lt _ []             = lt

@@ -80,8 +80,20 @@ prettyMCode :: Mnemonics -> MCode -> String
 prettyMCode mns is =
   unlines $ zipWith pretty' [0..] is
   where
-    pretty' pc' ins =
-      prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab ins
+    pretty' pc' =
+      prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab
+
+prettyACode :: ACode -> String
+prettyACode is =
+  unlines $ map pretty' is
+  where
+    pretty' :: AInstr -> String
+    pretty' =
+      prettyInstr indent' id prettyJmp' prettyLab'
+
+    indent'      = (fillLeft 8 "" ++)
+    prettyJmp'   = (:[])
+    prettyLab' l = l ++ ":"
 
 -- ----------------------------------------
 

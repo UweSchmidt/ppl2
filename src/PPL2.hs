@@ -35,7 +35,7 @@ p1' =
   , LoadAddr (AbsA 1)
   , LoadInd
   , LoadAddr (AbsA 4)
---  , Swap  -- no swap, address is on top of stack, the value below
+  -- , Swap  -- no swap, address is on top of stack, the value below
   , StoreInd
   , Term
   ]
@@ -74,13 +74,13 @@ main = do
   putStrLn $ prettyMCode (toMnemonics U.instrSet) p1
 
   putStrLn "exec program"
-  (MS instr pc stack mem frames status) <- U.execProg True p1 m1
+  (MS instr pc stack mem frames status) <- runProg U.instrSet True p1 m1
+
+  putStrLn $ "\nmachine status register: " ++ show status
 
   putStrLn   "\nglobal memory dump"
   print $ Segment.dump mem
 
-  putStrLn "\nmachine status register"
-  print $ status
   return ()
 
 main2 :: IO ()

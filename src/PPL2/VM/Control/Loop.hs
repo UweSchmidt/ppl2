@@ -13,7 +13,22 @@ import           PPL2.VM.Control.Types        (MicroInstr, runMicroCode, io)
 import           PPL2.VM.ALU.Types
 import           PPL2.VM.Pretty.Instr         (instrTrc)
 
-import           System.IO                   (stderr, hPutStrLn)
+import           System.IO                    (stderr, hPutStrLn)
+
+-- ----------------------------------------
+
+runProg :: (MonadIO m, CoreValue v) =>
+           CInstrSet v -> Bool -> [MInstr] -> [v] -> m (MState v)
+runProg instrset trc mcode mdata = do
+  s1 <- liftIO $ runMicroCode (initMem >> execLoop trcOutput instrset) newMState
+  return $ snd s1
+  where
+    initMem = do
+      msInstr .= CodeSeg.new     mcode
+      msMem   .= Segment.newInit mdata
+    trcOutput
+      | trc       = io . hPutStrLn stderr
+      | otherwise = const $ return ()
 
 -- ----------------------------------------
 

@@ -1,5 +1,7 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module PPL2.CodeGen.Assemble
-  (assemble)
+  (assemble, runAssembler)
 where
 
 import PPL2.Prelude
@@ -10,6 +12,21 @@ import qualified Data.Map as M
 -- ----------------------------------------
 
 type LabTab     = M.Map Label Offset
+
+-- ----------------------------------------
+
+-- the main entry point
+
+runAssembler :: MonadError String m => CInstrSet v -> ACode -> m MCode
+runAssembler inset is
+  | null es =
+      return cs
+
+  | otherwise =
+      throwError $ unlines $
+      "error(s) in assembler" : es
+  where
+    (es, cs) = assemble inset is
 
 -- ----------------------------------------
 

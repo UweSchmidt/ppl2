@@ -10,6 +10,14 @@ import PPL2.CodeGen.Monad
 
 -- ----------------------------------------
 
+runGenCode :: (MonadError String m, CoreValue v) =>
+              Mnemonics -> Expr v -> m (ACode, [v])
+runGenCode mns e =
+  either (const $ throwError "error in codegeneration") return $
+  genACode mns e
+
+-- ----------------------------------------
+
 genACode :: CoreValue v => Mnemonics -> Expr v -> Either (GCError v) (ACode, [v])
 genACode mns e =
   fst $ runGC genProg

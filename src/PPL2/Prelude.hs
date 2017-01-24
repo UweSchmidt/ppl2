@@ -10,6 +10,7 @@ module PPL2.Prelude
        ( module PPL2.Prelude
        , module Control.Lens
        , module Control.Monad
+       , module Control.Monad.Except
        , module Data.Either
        , module Data.Maybe
        , module Data.Monoid
@@ -19,6 +20,7 @@ where
 
 import Control.Lens
 import Control.Monad
+import Control.Monad.Except
 
 import Data.Bifunctor
 import Data.Maybe     hiding (fromJust)

@@ -11,25 +11,6 @@ import PPL2.Pretty.CodeGen
 import PPL2.Compile.Types
 
 -- ----------------------------------------
---
--- the main entry point into codegen
-
-genCode :: (MonadCompile m, Show v, CoreValue v) =>
-           Mnemonics -> Expr v -> m (ACode, [v])
-genCode mns e =
-  either issueErr return $
-  first msg $
-  genACode mns e
-  where
-    issueErr msg = do
-      liftIO $ hPutStrLn stderr $
-        "error in codegeneration\n" ++ msg
-      throwError (ExitFailure 2)
-
-    msg (GCE s me) = s ++ "\n" ++ maybe "" (prettyGCExpr show) me
-
--- ----------------------------------------
-
 
 genACode :: CoreValue v => Mnemonics -> Expr v -> Either (GCError v) (ACode, [v])
 genACode mns e =

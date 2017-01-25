@@ -6,6 +6,7 @@ module PPL2.Compile.Types
 where
 
 import PPL2.Prelude
+
 import System.Exit
 import System.IO
 
@@ -15,5 +16,11 @@ import System.IO
 type RunCompile a   = ExceptT ExitCode IO a
 
 type MonadCompile m = (MonadIO m, MonadError ExitCode m)
+
+issueError :: MonadCompile m => Int -> String -> m a
+issueError rc ms = do
+  liftIO $ hPutStrLn stderr ms
+  throwError (ExitFailure rc)
+
 
 -- ----------------------------------------

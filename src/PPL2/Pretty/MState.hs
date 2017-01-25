@@ -61,10 +61,10 @@ prettyMState' s = mconcat $
   ]
 
 prettyMStatus :: Show v => MStatus v -> Lines
-prettyMStatus s = ln $ fmt ["status:", show s]
+prettyMStatus s = ln $ fmt' ["status", show s]
 
 prettyPC :: CodeRef -> Lines
-prettyPC pc' = ln $ fmt ["pc: ", show pc']
+prettyPC pc' = ln $ fmt' ["pc", show pc']
 
 prettyStack :: Show v => Stack v -> Lines
 prettyStack s
@@ -74,7 +74,7 @@ prettyStack s
       mconcat $ zipWith cell [0::Int ..] s'
   where
     cell i v =
-      ln $ fmt [show i ++ ":", show v]
+      ln $ fmt' [show i, show v]
 
     s' = Stack.unStack s
 
@@ -83,7 +83,7 @@ prettySegment :: Show v => Segment v -> Lines
 prettySegment =
   mconcat . zipWith cell [0..] . Segment.dump
   where
-    cell i v = ln $ fmt [show i ++ ":", show v]
+    cell i v = ln $ fmt' [show i, show v]
 
 prettyRTS :: Show v => RTS v -> Lines
 prettyRTS rts = ln "RTS dump not yet implemented"

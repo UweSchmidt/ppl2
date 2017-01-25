@@ -3,6 +3,7 @@ module PPL2.Pretty.AProg where
 import PPL2.Prelude
 import PPL2.VM.Types     (AProg, ACode, AInstr)
 import PPL2.Pretty.Instr (prettyInstr, fillLeft)
+import PPL2.Pretty.MProg (prettyData)
 import PPL2.System.Types (MonadCompile)
 
 -- ----------------------------------------
@@ -19,7 +20,8 @@ prettyAProg (acode, adata) =
   , "data segment"
   , "============"
   , ""
-  , show adata  -- preliminary
+  , prettyData adata  -- preliminary
+  , ""
   ]
 
 prettyACode :: ACode -> [String]

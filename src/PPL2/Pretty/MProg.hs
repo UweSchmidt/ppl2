@@ -9,18 +9,18 @@ import PPL2.System.Types (MonadCompile)
 
 prettyMProg :: (Show v) =>
                (OpCode -> Maybe Mnemonic) -> (MCode, [v]) -> String
-prettyMProg toMn (acode, adata) =
+prettyMProg toMn (mcode, mdata) =
   unlines $
   [ "code segment"
   , "============"
   , ""
   ] ++
-  prettyMCode toMn acode ++
+  prettyMCode toMn mcode ++
   [ ""
   , "data segment"
   , "============"
   , ""
-  , show adata  -- preliminary
+  , prettyData mdata
   ]
 
 -- ----------------------------------------
@@ -31,5 +31,11 @@ prettyMCode mns is =
   where
     pretty' pc' =
       prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab
+
+prettyData :: Show v => [v] -> String
+prettyData =
+  unlines . zipWith cell [0::Int ..]
+  where
+    cell i v = fmt' $ [show i, show v]
 
 -- ----------------------------------------

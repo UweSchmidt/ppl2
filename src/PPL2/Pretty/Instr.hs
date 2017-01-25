@@ -51,6 +51,7 @@ fmt = unwords . align1
 
 align1 :: [String] -> [String]
 align1 (x1 : xs@(_ : _)) = fillRight 10 x1 : align2 xs
+align1 (x1 : xs) = fillRight 10 x1 : xs
 align1 xs = xs
 
 align2 :: [String] -> [String]
@@ -68,6 +69,13 @@ fillLeft n xs
   | otherwise = xs
   where
     m = n - length xs
+
+fmt' :: [String] -> String
+fmt' = unwords . align
+  where
+    align :: [String] -> [String]
+    align (x1 : xs) = (fillLeft 7 x1 ++ ": ") : xs
+    align xs = xs
 
 -- ----------------------------------------
 --

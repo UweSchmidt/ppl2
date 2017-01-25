@@ -1,5 +1,5 @@
-module PPL2.Compile.Types
-  ( module PPL2.Compile.Types
+module PPL2.System.Types
+  ( module PPL2.System.Types
   , module System.Exit
   , module System.IO
   )

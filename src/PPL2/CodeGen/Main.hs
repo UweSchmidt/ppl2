@@ -6,7 +6,7 @@ import PPL2.CodeGen.Types   (Expr)
 import PPL2.CodeGen.Monad   (GCError(..))
 import PPL2.CodeGen.GenCode (genACode)
 import PPL2.Pretty.CodeGen  (prettyGCExpr)
-import PPL2.Compile.Types
+import PPL2.System.Types
 
 -- ----------------------------------------
 --

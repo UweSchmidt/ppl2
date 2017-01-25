@@ -37,11 +37,13 @@ executable ppl2
                 PPL2.VM.Memory.Segment
                 PPL2.VM.Memory.Stack
                 PPL2.VM.Memory.State
+                PPL2.Codegen.Main
                 PPL2.CodeGen.Assemble
                 PPL2.CodeGen.Types
                 PPL2.Pretty.Instr
                 PPL2.Pretty.CodeGen
-                                          
+                PPL2.System.Types
+                                                                          
   -- other-extensions:    
   build-depends:       base >=4.7
                      , array      >=0.4

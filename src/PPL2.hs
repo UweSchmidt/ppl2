@@ -4,7 +4,9 @@ import PPL2.Prelude
 import PPL2.VM
 import PPL2.CodeGen
 import PPL2.Pretty.Instr
-import PPL2.Compile.Types
+
+import PPL2.CodeGen.Main
+import PPL2.System.Types
 
 import qualified PPL2.VM.Machines.UntaggedInt as U
 import qualified PPL2.VM.Machines.TaggedInt   as T

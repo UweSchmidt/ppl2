@@ -7,8 +7,6 @@ import PPL2.VM.Types
 import PPL2.CodeGen.Types
 import PPL2.CodeGen.Builder
 import PPL2.CodeGen.Monad
-import PPL2.Pretty.CodeGen
-import PPL2.Compile.Types
 
 -- ----------------------------------------
 

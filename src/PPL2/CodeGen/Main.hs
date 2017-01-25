@@ -13,11 +13,11 @@ import PPL2.System.Types
 -- the main entry point into codegen
 
 genCode :: (MonadCompile m, Show v, CoreValue v) =>
-           Mnemonics -> Expr v -> m (ACode, [v])
-genCode mns e =
+           (Mnemonic -> Bool) -> Expr v -> m (ACode, [v])
+genCode isop e =
   either (issueError 2) return $
   first msg $
-  genACode mns e
+  genACode isop e
   where
     msg (GCE s me) =
       unlines $ [ "error in codegeneration"

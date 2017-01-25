@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}  -- instances for Word
-{-# LANGUAGE TypeSynonymInstances #-}
 
 -- this is a VM with simple Word values as machine values
 -- and just simple integer arithmetic
@@ -20,16 +19,8 @@ import Data.Bits (shiftR, shiftL, (.|.), (.&.))
 
 -- ----------------------------------------
 
-type MExpr   = Expr MV
-
-genAProg :: MExpr -> (ACode, [MV])
-genAProg e =
-  either (const ([], [])) id $ genACode (toMnemonics instrSet) e
-
--- ----------------------------------------
-
 type MV      = Word
-
+type MExpr   = Expr MV
 type MCode a = MicroCode MV a
 
 -- ----------------------------------------

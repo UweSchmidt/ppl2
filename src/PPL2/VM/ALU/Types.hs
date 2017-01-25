@@ -45,11 +45,14 @@ toALU :: CInstrSet v -> ALU v
 toALU =
   ALU . I.fromList . zip [0..] . map snd . M.toAscList . unCIS
 
+hasOpCode :: MapMnemonics a -> Mnemonic -> Bool
+hasOpCode inset = isJust . toOpCode inset
+
 -- for encoding assembler instructions
 toOpCode :: MapMnemonics a -> Mnemonic -> Maybe OpCode
-toOpCode iset mn = M.lookup mn im
+toOpCode inset mn = M.lookup mn im
   where
-    ms = map fst . M.toAscList . unCIS $ iset
+    ms = map fst . M.toAscList . unCIS $ inset
     im = M.fromList (zip ms [0..])
 
 -- for tracing execution

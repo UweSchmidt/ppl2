@@ -16,7 +16,7 @@ import qualified PPL2.VM.Memory.Segment as Segment
 
 
 genCode' :: Expr U.MV -> RunCompile (ACode, [U.MV])
-genCode' = genCode (toMnemonics U.instrSet)
+genCode' = genCode (hasOpCode U.instrSet)
 
 assemble' = undefined
 

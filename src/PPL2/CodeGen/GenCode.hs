@@ -10,12 +10,12 @@ import PPL2.CodeGen.Monad
 
 -- ----------------------------------------
 
-genACode :: CoreValue v => Mnemonics -> Expr v -> Either (GCError v) (ACode, [v])
-genACode mns e =
+genACode :: CoreValue v => (Mnemonic -> Bool) -> Expr v -> Either (GCError v) (ACode, [v])
+genACode isOp e =
   fst $ runGC genProg
   where
     genProg = do
-      c <- genCodeExpr mns e
+      c <- genCodeExpr isOp e
       f <- use fctCode
       g <- use globSeg
       return (toACode (c <> gTerminate <> f)
@@ -24,8 +24,8 @@ genACode mns e =
 
 -- ----------------------------------------
 
-genCodeExpr :: CoreValue v => Mnemonics -> Expr v -> GenCode v Code
-genCodeExpr mns = go
+genCodeExpr :: CoreValue v => (Mnemonic -> Bool) -> Expr v -> GenCode v Code
+genCodeExpr isComputeOp = go
   where
     go e
       -- load a variable
@@ -49,7 +49,7 @@ genCodeExpr mns = go
           return $ cae <> gLoadInd
 
       -- gen code for a compute instr
-      | Just (opr, es) <- e ^? hasOp (`elem` mns) . expr = do
+      | Just (opr, es) <- e ^? hasOp isComputeOp . expr = do
           cs <- traverse go es
           return $ gComp opr <> mconcat cs
 

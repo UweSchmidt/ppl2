@@ -70,18 +70,9 @@ fillLeft n xs
 --
 -- trace an instruction during prog execution
 
-instrTrc :: Mnemonics -> (String -> MicroInstr v) -> MInstr -> Offset -> MicroInstr v
+instrTrc :: (OpCode -> Maybe Mnemonic) -> (String -> MicroInstr v) -> MInstr -> Offset -> MicroInstr v
 instrTrc mns cmd ins pc' =
   cmd $ prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab ins
-
--- ----------------------------------------
-
-prettyMCode :: Mnemonics -> MCode -> String
-prettyMCode mns is =
-  unlines $ zipWith pretty' [0..] is
-  where
-    pretty' pc' =
-      prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab
 
 -- ----------------------------------------
 
@@ -89,9 +80,9 @@ indent :: Offset -> String -> String
 indent pc' xs =
   fillLeft 7 (show pc') ++ ":  " ++ xs
 
-prettyOp :: Mnemonics -> Int -> String
+prettyOp :: (OpCode -> Maybe Mnemonic) -> Int -> String
 prettyOp mns op' =
-  fromMaybe ("undefinded-opcode-" ++ show op') . listToMaybe . drop op' $ mns
+  fromMaybe ("undefinded-opcode: " ++ show op') $ mns op'
 
 prettyJmp :: Offset -> Int -> [String]
 prettyJmp pc' disp =

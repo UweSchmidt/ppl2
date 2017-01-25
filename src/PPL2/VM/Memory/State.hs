@@ -3,7 +3,7 @@ module PPL2.VM.Memory.State
        , MStatus(..)
        , newMState
        , msInstr, msPC, msMem, msStack, msFrames, msStatus
-       , statusOk
+       , statusOk, statusTerminated
        )
 where
 
@@ -79,5 +79,9 @@ data MStatus v = Ok
 statusOk :: MStatus v -> Bool
 statusOk Ok = True
 statusOk _  = False
+
+statusTerminated :: MStatus v -> Bool
+statusTerminated Terminated = True
+statusTerminated _  = False
 
 -- ----------------------------------------

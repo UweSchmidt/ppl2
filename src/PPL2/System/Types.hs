@@ -13,23 +13,63 @@ import System.IO
 -- the control monad for control flow
 -- in main application
 
-type RunCompile a   = ExceptT ExitCode IO a
 
 type MonadCompile m = (MonadIO m, MonadError ExitCode m)
 
 execCompile :: RunCompile () -> IO ()
 execCompile cmd =
-  runExceptT cmd >>= either exitWith (const exitSuccess)
+  runCompile cmd >>= either exitWith (const exitSuccess)
 
 issueError :: MonadCompile m => Int -> String -> m a
 issueError rc ms = do
   liftIO $ hPutStrLn stderr ms
   throwError (ExitFailure rc)
 
-tostdout :: MonadCompile m => String -> m ()
+tee :: Monad m => (a -> m ()) -> a -> m a
+tee out x = out x >> return x
+
+tostdout :: MonadIO m => String -> m ()
 tostdout = liftIO . putStrLn
 
-tostderr :: MonadCompile m => String -> m ()
+tostderr :: MonadIO m => String -> m ()
 tostderr = liftIO . hPutStrLn stderr
+
+todevnull :: Monad m => String -> m ()
+todevnull = const $ return ()
+
+stopWhen :: MonadCompile m => m Bool -> a -> m a
+stopWhen flag v = do
+  b <- flag
+  if b
+    then tostderr "compile run finished with success"
+         >>
+         throwError ExitSuccess
+    else return v
+
+class Monad m => MonadOptions m where
+  onlyAssemble :: m Bool
+  onlyGenCode  :: m Bool
+  success      :: m Bool
+
+  onlyGenCode  = return False
+  onlyAssemble = return False
+  success      = return True
+
+-- ----------------------------------------
+--
+-- the main monad for controling the whole compile process
+
+newtype RunCompile a
+  = RC { unRC :: ExceptT ExitCode IO a }
+  deriving ( Functor
+           , Applicative
+           , Monad
+           , MonadError ExitCode
+           , MonadIO
+           )
+
+runCompile = runExceptT . unRC
+
+instance MonadOptions RunCompile where
 
 -- ----------------------------------------

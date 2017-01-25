@@ -40,25 +40,28 @@ doubleMnemonics dmn _m1 _m2 =
   "PPL2.VI.ALU.Types': doublicated mnemonics in instruction set: "
   ++ show dmn
 
--- for program execution
+-- derive the ALU from the instruction set
 toALU :: CInstrSet v -> ALU v
 toALU =
   ALU . I.fromList . zip [0..] . map snd . M.toAscList . unCIS
 
-hasOpCode :: MapMnemonics a -> Mnemonic -> Bool
+-- decoding opcodes back to mnemonics
+toMnemonic :: CInstrSet v -> (OpCode -> Maybe Mnemonic)
+toMnemonic inset
+  = flip I.lookup ocm
+  where
+    ocm = I.fromList . zip [0..] . map fst . M.toAscList . unCIS $ inset
+
+-- test whether a name is a mnemonic
+hasOpCode :: MapMnemonics a -> (Mnemonic -> Bool)
 hasOpCode inset = isJust . toOpCode inset
 
--- for encoding assembler instructions
-toOpCode :: MapMnemonics a -> Mnemonic -> Maybe OpCode
+-- for encoding assembler mnemonics into opcodes
+toOpCode :: MapMnemonics a -> (Mnemonic -> Maybe OpCode)
 toOpCode inset mn = M.lookup mn im
   where
     ms = map fst . M.toAscList . unCIS $ inset
     im = M.fromList (zip ms [0..])
-
--- for tracing execution
-toMnemonics :: MapMnemonics a -> Mnemonics
-toMnemonics =
-  map fst . M.toAscList . unCIS
 
 -- the opcode decoding
 getMicroInstr :: OpCode -> ALU v -> Maybe (MicroInstr v)

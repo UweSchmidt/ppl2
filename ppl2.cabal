@@ -22,6 +22,7 @@ executable ppl2
   other-modules:
                 PPL2.Prelude
                 PPL2.VM
+                PPL2.VM.Main
                 PPL2.VM.Types
                 PPL2.VM.ALU.Types
                 PPL2.VM.ALU.IntegerArithmUnit
@@ -48,6 +49,7 @@ executable ppl2
                 PPL2.Pretty.Instr
                 PPL2.Pretty.UntypedExpr
                 PPL2.Pretty.AProg
+                PPL2.Pretty.MProg
                 PPL2.System.Types
                                                                           
   -- other-extensions:    

@@ -15,6 +15,8 @@ import           PPL2.Pretty.Instr            (instrTrc)
 
 import           System.IO                    (stderr, hPutStrLn)
 
+import           PPL2.System.Types
+
 -- ----------------------------------------
 
 runProg :: (MonadIO m, CoreValue v) =>
@@ -32,30 +34,15 @@ runProg instrset trc mcode mdata = do
 
 -- ----------------------------------------
 
-execProg' :: CoreValue v =>
-             CInstrSet v -> Bool -> [MInstr] -> [v] -> IO (MState v)
-execProg' iset trc is vs =
-  snd <$> runMicroCode (initMem >> execLoop trcOutput iset) newMState
-  where
-    initMem = do
-      msInstr .= CodeSeg.new     is
-      msMem   .= Segment.newInit vs
-    trcOutput
-      | trc       = io . hPutStrLn stderr
-      | otherwise = const $ return ()
-
--- ----------------------------------------
-
-
 execLoop :: CoreValue v =>
           (String -> MicroInstr v) ->    -- the trace output cmd
           CInstrSet v ->                 -- the instruction set
           MicroInstr v
-execLoop trc iset = go
+execLoop trc inset = go
   where
-    alu = toALU iset
-    mns = toMnemonics iset
-    instructionTrace = instrTrc mns trc
+    alu = toALU inset
+
+    instructionTrace = instrTrc (toMnemonic inset) trc
 
     go = do
       continue <- statusOk <$> use msStatus

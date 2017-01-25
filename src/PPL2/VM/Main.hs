@@ -6,7 +6,8 @@ import PPL2.VM.Types
 import qualified PPL2.VM.Memory.CodeSeg       as CodeSeg
 import qualified PPL2.VM.Memory.Segment       as Segment
 import           PPL2.VM.Memory.State         (MState, newMState
-                                              ,msInstr, msMem)
+                                              , msInstr, msMem, msStatus
+                                              , statusTerminated)
 import           PPL2.VM.Control.Types        (runMicroCode)
 import           PPL2.VM.Control.Loop
 import           PPL2.VM.ALU.Types
@@ -27,5 +28,15 @@ execute inset trc (mcode, mdata) =  do
     trcOutput
       | trc       = tostderr
       | otherwise = todevnull
+
+-- ----------------------------------------
+
+checkFinalState :: (MonadCompile m, Show v, CoreValue v) =>
+                   MState v -> m (MState v)
+checkFinalState s
+  | statusTerminated (s ^. msStatus) =
+      return s
+  | otherwise =
+      issueError 42 $ "execute aborted, status = " ++ show (s ^? msStatus)
 
 -- ----------------------------------------

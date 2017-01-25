@@ -4,9 +4,11 @@ import PPL2.Prelude
 import PPL2.VM
 import PPL2.CodeGen
 import PPL2.Assemble.Assemble (assembleCode)
+
 import PPL2.Pretty.Instr
 import PPL2.Pretty.AProg
 import PPL2.Pretty.MProg
+import PPL2.Pretty.MState
 
 import PPL2.CodeGen.Main
 import PPL2.Assemble.Main
@@ -88,6 +90,10 @@ compilePipeline =
   tee (tostderr . prettyMProg (toMnemonic U.instrSet))
   >=>
   execute' True
+  >=>
+  tee (tostderr . prettyMState)
+  >=>
+  checkFinalState
   >=>
   stopWhen success
   >=>

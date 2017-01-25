@@ -57,6 +57,7 @@ put sid i v rts@RTS{segments = segs} = do
   seg'          <- Segment.put i v seg
   return $ rts {segments = M.insert sid (lastId, seg') segs}
 
+
 getLocal :: Offset -> RTS v -> Maybe v
 getLocal i rts = get (topId rts) i rts
 

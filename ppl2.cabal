@@ -50,6 +50,7 @@ executable ppl2
                 PPL2.Pretty.UntypedExpr
                 PPL2.Pretty.AProg
                 PPL2.Pretty.MProg
+                PPL2.Pretty.MState
                 PPL2.System.Types
                                                                           
   -- other-extensions:    

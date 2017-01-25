@@ -1,5 +1,5 @@
 module PPL2.VM.Memory.Stack
-       (Stack, get, getN, push, pop, top, new)
+       (Stack, get, getN, push, pop, top, new, unStack)
 where
 
 import PPL2.Prelude  ()
@@ -7,7 +7,7 @@ import PPL2.VM.Types
 
 -- ----------------------------------------
 
-newtype Stack a = Stack [a]
+newtype Stack a = Stack { unStack :: [a] }
 
 -- ----------------------------------------
 

@@ -45,14 +45,17 @@ prettyInstr indent prettyOp prettyJmp prettyLab ins =
         Comp op'          -> [prettyOp op']
         Term              -> ["terminate"]
         _                 -> []
-    fmt = unwords . align1
 
-    align1 :: [String] -> [String]
-    align1 (x1 : xs@(_ : _)) = fillRight 10 x1 : align2 xs
-    align1 xs = xs
+fmt :: [String] -> String
+fmt = unwords . align1
 
-    align2 (x2 : xs@(_ : _)) = fillRight 10 x2 : xs
-    align2 xs = xs
+align1 :: [String] -> [String]
+align1 (x1 : xs@(_ : _)) = fillRight 10 x1 : align2 xs
+align1 xs = xs
+
+align2 :: [String] -> [String]
+align2 (x2 : xs@(_ : _)) = fillRight 10 x2 : xs
+align2 xs = xs
 
 fillRight :: Int -> String -> String
 fillRight n xs

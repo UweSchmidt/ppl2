@@ -47,10 +47,10 @@ abortGC = throwError
 -- ----------------------------------------
 
 data GCError v
-  = GCE String (Maybe (Expr v))
+  = GCE String (Maybe (UntypedExpr v))
     deriving Show
 
-errGCExpr :: Expr v -> GCError v
+errGCExpr :: UntypedExpr v -> GCError v
 errGCExpr = GCE "can't gencode" . Just
 
 -- ----------------------------------------

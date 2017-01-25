@@ -20,7 +20,7 @@ import Data.Bits (shiftR, shiftL, (.|.), (.&.))
 -- ----------------------------------------
 
 type MV      = Word
-type MExpr   = Expr MV
+type MExpr   = UntypedExpr MV
 type MCode a = MicroCode MV a
 
 -- ----------------------------------------

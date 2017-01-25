@@ -10,7 +10,8 @@ import PPL2.CodeGen.Monad
 
 -- ----------------------------------------
 
-genACode :: CoreValue v => (Mnemonic -> Bool) -> Expr v -> Either (GCError v) (ACode, [v])
+genACode :: CoreValue v =>
+            (Mnemonic -> Bool) -> UntypedExpr v -> Either (GCError v) (ACode, [v])
 genACode isOp e =
   fst $ runGC genProg
   where
@@ -24,7 +25,8 @@ genACode isOp e =
 
 -- ----------------------------------------
 
-genCodeExpr :: CoreValue v => (Mnemonic -> Bool) -> Expr v -> GenCode v Code
+genCodeExpr :: CoreValue v =>
+               (Mnemonic -> Bool) -> UntypedExpr v -> GenCode v Code
 genCodeExpr isComputeOp = go
   where
     go e

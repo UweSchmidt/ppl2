@@ -1,4 +1,4 @@
-module PPL2.Pretty.CodeGen where
+module PPL2.Pretty.UntypedExpr where
 
 import PPL2.Prelude
 import PPL2.CodeGen.Types
@@ -8,8 +8,8 @@ import Data.Tree          (drawTree)
 
 -- ----------------------------------------
 
-prettyGCExpr :: (v -> String) -> Expr v -> String
-prettyGCExpr v2s =
+prettyUntypedExpr :: (v -> String) -> UntypedExpr v -> String
+prettyUntypedExpr v2s =
   drawTree . fmap e2s
   where
     e2s (Opr m) = m

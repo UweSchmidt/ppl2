@@ -19,20 +19,21 @@ import Data.Tree
 -- parameter. How a literal is compiled remains also open, v must be an
 -- instance of the LoadLit class
 
-type Expr  v = Tree (ExOp v)
-type Exprs v = [Expr v]
+type UntypedExpr  v = Tree (UntypedExOp v)
 
-data ExOp v = Opr Mnemonic
-            | Lit v
-            | Adr Address
-            | Lab Label
-            deriving Show -- just for testing
+type UntypedExprs v = [UntypedExpr v]
+
+data UntypedExOp  v = Opr Mnemonic
+                    | Lit v
+                    | Adr Address
+                    | Lab Label
+                    deriving Show -- just for testing
 
 -- ----------------------------------------
 --
 -- smart selectors/constructors for Expr-essions
 
-address :: Prism' (Expr a) Address
+address :: Prism' (UntypedExpr v) Address
 address = prism
   (\ i -> Node (Adr i) [])
   (\ case
@@ -40,7 +41,7 @@ address = prism
       x                -> Left  x
   )
 
-label :: Prism' (Expr a) Label
+label :: Prism' (UntypedExpr v) Label
 label = prism
   (\ i -> Node (Lab i) [])
   (\ case
@@ -48,7 +49,7 @@ label = prism
       x                -> Left  x
   )
 
-lit :: Prism' (Expr a) a
+lit :: Prism' (UntypedExpr v) v
 lit = prism
   (\ i -> Node (Lit i) [])
   (\ case
@@ -56,7 +57,7 @@ lit = prism
       x                -> Left  x
   )
 
-expr :: Prism' (Expr a) (Mnemonic, Exprs a)
+expr :: Prism' (UntypedExpr v) (Mnemonic, UntypedExprs v)
 expr = prism
   (\ (i, xs) -> Node (Opr i) xs)
   (\ case
@@ -64,7 +65,7 @@ expr = prism
       x               -> Left  x
   )
 
-expr0 :: Prism' (Expr a) Mnemonic
+expr0 :: Prism' (UntypedExpr v) Mnemonic
 expr0 = prism
   (\ i -> Node (Opr i) [])
   (\ case
@@ -72,7 +73,7 @@ expr0 = prism
       x               -> Left  x
   )
 
-expr1 :: Prism' (Expr a) (Mnemonic, Expr a)
+expr1 :: Prism' (UntypedExpr v) (Mnemonic, UntypedExpr v)
 expr1 = prism
   (\ (i, x) -> Node (Opr i) [x])
   (\ case
@@ -80,7 +81,7 @@ expr1 = prism
       x                -> Left  x
   )
 
-expr2 :: Prism' (Expr a) (Mnemonic, (Expr a, Expr a))
+expr2 :: Prism' (UntypedExpr v) (Mnemonic, (UntypedExpr v, UntypedExpr v))
 expr2 = prism
   (\ (i, (x1, x2)) -> Node (Opr i) [x1, x2])
   (\ case
@@ -88,7 +89,7 @@ expr2 = prism
       x                     -> Left  x
   )
 
-expr3 :: Prism' (Expr a) (Mnemonic, (Expr a, Expr a, Expr a))
+expr3 :: Prism' (UntypedExpr v) (Mnemonic, (UntypedExpr v, UntypedExpr v, UntypedExpr v))
 expr3 = prism
   (\ (i, (x1, x2, x3)) -> Node (Opr i) [x1, x2, x3])
   (\ case
@@ -96,7 +97,7 @@ expr3 = prism
       x                         -> Left  x
   )
 
-hasOp :: (Mnemonic -> Bool) -> Prism' (Expr a) (Expr a)
+hasOp :: (Mnemonic -> Bool) -> Prism' (UntypedExpr v) (UntypedExpr v)
 hasOp p = filtered p'
   where
     p' (Node (Opr i) _) = p i

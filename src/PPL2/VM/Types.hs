@@ -78,6 +78,9 @@ type AInstr = Instr Mnemonic Label
 type ACode  = [AInstr]
 type MCode  = [MInstr]
 
+type AProg v = (ACode, [v])
+type MProg v = (MCode, [v])
+
 -- the opcode for the configuable set of operations
 type OpCode       = Int
 

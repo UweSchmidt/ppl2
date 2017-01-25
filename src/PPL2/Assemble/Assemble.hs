@@ -1,7 +1,5 @@
-{-# LANGUAGE FlexibleContexts #-}
-
-module PPL2.CodeGen.Assemble
-  (assembleCode, runAssembler)
+module PPL2.Assemble.Assemble
+  (assembleCode)
 where
 
 import PPL2.Prelude
@@ -15,23 +13,8 @@ type LabTab     = M.Map Label Offset
 
 -- ----------------------------------------
 
--- the main entry point
-
-runAssembler :: MonadError String m => CInstrSet v -> ACode -> m MCode
-runAssembler inset is
-  | null es =
-      return cs
-
-  | otherwise =
-      throwError $ unlines $
-      "error(s) in assembler" : es
-  where
-    (es, cs) = assembleCode inset is
-
--- ----------------------------------------
-
-assembleCode :: CInstrSet v -> ACode -> ([String], MCode)
-assembleCode inset is =
+assembleCode :: (Mnemonic -> Maybe OpCode) -> ACode -> ([String], MCode)
+assembleCode opc' is =
   partitionEithers $ zipWith toMInstr [0..] is'
   where
     toMInstr :: Int -> AInstr -> Either String MInstr
@@ -76,11 +59,6 @@ assembleCode inset is =
                  (Left $ "unknown mnemonic: " ++ show mn)
                  Right
                  (opc' mn)
-    opc'       = toOpCode inset
-
-    -- the errors indicate uncomplete or wrong code generation algorithms
-    -- therfore the hard abort
-    -- TODO: remove this hack
 
 buildLabTab     :: LabTab -> Offset -> [Instr op Label] -> LabTab
 buildLabTab lt _ []             = lt

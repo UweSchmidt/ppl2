@@ -3,9 +3,12 @@ module Main where
 import PPL2.Prelude
 import PPL2.VM
 import PPL2.CodeGen
+import PPL2.Assemble.Assemble (assembleCode)
 import PPL2.Pretty.Instr
+import PPL2.Pretty.AProg
 
 import PPL2.CodeGen.Main
+import PPL2.Assemble.Main
 import PPL2.System.Types
 
 import qualified PPL2.VM.Machines.UntaggedInt as U
@@ -18,7 +21,8 @@ import qualified PPL2.VM.Memory.Segment as Segment
 genCode' :: UntypedExpr U.MV -> RunCompile (ACode, [U.MV])
 genCode' = genCode (hasOpCode U.instrSet)
 
-assemble' = undefined
+assemble' :: (ACode, [U.MV]) -> RunCompile (MCode, [U.MV])
+assemble' = assemble (toOpCode U.instrSet)
 
 execProg' = undefined
 
@@ -58,24 +62,36 @@ m1' =
   , _Default # ()
   ]
 
--- p1 :: MCode
--- p1 = assemble U.instrSet p1'
+p1 :: MCode
+p1 = snd $ assembleCode (toOpCode U.instrSet) p1'
 
 m1 :: [U.MV]
 m1 = m1'
 
 p2 :: MCode
-(e2, p2) = assembleCode T.instrSet p1'
+(e2, p2) = assembleCode (toOpCode T.instrSet) p1'
 
 m2 :: [T.MV]
 m2 = m1'
 
+compilePipeline ::  AProg U.MV -> RunCompile ()
+compilePipeline =
+  teeAProg tostderr
+  >=>
+  assemble'
+  >=>
+  (const $ tostderr "compile run finished with success")
+
+main1 :: IO ()
+main1 = execCompile $ compilePipeline (p1', m1')
+
+
 main :: IO ()
 main = do
   putStrLn "assembler code"
-  putStrLn $ prettyACode p1'
+  putStrLn $ unlines $ prettyACode p1'
 
-  let (es, p1) = assembleCode U.instrSet p1'
+  let (es, p1) = assembleCode (toOpCode U.instrSet) p1'
   unless (null es) $ do
      die $ unlines ("assembly errors:" : es)
 

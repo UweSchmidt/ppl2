@@ -37,11 +37,17 @@ executable ppl2
                 PPL2.VM.Memory.Segment
                 PPL2.VM.Memory.Stack
                 PPL2.VM.Memory.State
-                PPL2.Codegen.Main
-                PPL2.CodeGen.Assemble
+                PPL2.CodeGen
+                PPL2.CodeGen.Main
+                PPL2.CodeGen.Builder
+                PPL2.CodeGen.Monad
+                PPL2.CodeGen.GenCode
                 PPL2.CodeGen.Types
+                PPL2.Assemble.Main
+                PPL2.Assemble.Assemble
                 PPL2.Pretty.Instr
                 PPL2.Pretty.UntypedExpr
+                PPL2.Pretty.AProg
                 PPL2.System.Types
                                                                           
   -- other-extensions:    

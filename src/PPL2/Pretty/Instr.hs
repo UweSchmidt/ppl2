@@ -83,18 +83,6 @@ prettyMCode mns is =
     pretty' pc' =
       prettyInstr (indent pc') (prettyOp mns) (prettyJmp pc') prettyLab
 
-prettyACode :: ACode -> String
-prettyACode is =
-  unlines $ map pretty' is
-  where
-    pretty' :: AInstr -> String
-    pretty' =
-      prettyInstr indent' id prettyJmp' prettyLab'
-
-    indent'      = (fillLeft 8 "" ++)
-    prettyJmp'   = (:[])
-    prettyLab' l = l ++ ":"
-
 -- ----------------------------------------
 
 indent :: Offset -> String -> String

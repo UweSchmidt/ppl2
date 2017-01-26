@@ -19,7 +19,7 @@ genACode isOp e =
       c <- genCodeExpr isOp e
       f <- use fctCode
       g <- use globSeg
-      return (toACode (c <> gTerminate <> f)
+      return (toACode (c <> gTerminate <> f) -- add the Term instruction
              , builder2List g
              )
 

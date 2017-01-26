@@ -9,6 +9,7 @@ import PPL2.Pretty.Instr
 import PPL2.Pretty.AProg
 import PPL2.Pretty.MProg
 import PPL2.Pretty.MState
+import PPL2.Pretty.UntypedExpr
 
 import PPL2.CodeGen.Main
 import PPL2.Assemble.Main
@@ -25,11 +26,22 @@ import qualified PPL2.VM.Memory.Segment as Segment
 genCode' :: UntypedExpr U.MV -> RunCompile (ACode, [U.MV])
 genCode' = genCode (hasOpCode U.instrSet)
 
-assemble' :: AProg  U.MV -> RunCompile (MProg U.MV)
-assemble' = assemble (toOpCode U.instrSet)
+e1 :: CoreValue v => UntypedExpr v
+e1 = expr # (",", [glb, xy12, swap])
+  where
+    glb    = expr1 # ("globals", lit . _Word # 10) -- allocate 10 global variables
+    xy12   = expr2 # (":=", (xy, i1i2))
+    swap   = expr2 # (":=", (xy, yx))
 
-execute' :: Bool -> MProg U.MV -> RunCompile (MState U.MV)
-execute' = execute U.instrSet
+    xy     = expr2 # (",", (x, y))
+    yx     = expr2 # (",", (y, x))
+    i1i2   = expr2 # (",", (i1, i2))
+
+    x      = address # (AbsA 1)
+    y      = address # (AbsA 2)
+
+    i1     = lit . _Int # 1
+    i2     = lit . _Int # 2
 
 p1' :: ACode
 p1' =
@@ -79,17 +91,24 @@ p2 :: MCode
 m2 :: [T.MV]
 m2 = m1'
 
-compilePipeline ::  AProg U.MV -> RunCompile ()
-compilePipeline =
+compilePipeline :: (Show v, CoreValue v) =>
+                    CInstrSet v -> UntypedExpr v -> RunCompile ()
+compilePipeline instrSet =
+  tee (tostderr . prettyUntypedExpr show)
+  >=>
+  undefined -- genCode (toOpCode instrSet)
+  >=>
+  stopWhen onlyGenCode
+  >=>
   tee (tostderr . prettyAProg)
   >=>
-  assemble'
+  assemble (toOpCode instrSet)
   >=>
   stopWhen onlyAssemble
   >=>
-  tee (tostderr . prettyMProg (toMnemonic U.instrSet))
+  tee (tostderr . prettyMProg (toMnemonic instrSet))
   >=>
-  execute' True
+  execute instrSet True
   >=>
   tee (tostderr . prettyMState)
   >=>
@@ -100,7 +119,7 @@ compilePipeline =
   (const $ return ())
 
 main1 :: IO ()
-main1 = execCompile $ compilePipeline (p1', m1')
+main1 = execCompile $ compilePipeline U.instrSet e1
 
 
 main :: IO ()
@@ -116,7 +135,8 @@ main = do
   putStrLn $ unlines $ prettyMCode (toMnemonic U.instrSet) p1
 
   putStrLn "exec program"
-  (MS instr pc stack mem frames status) <- either undefined id <$> (runCompile $ execute' True (p1, m1))
+  (MS instr pc stack mem frames status) <-
+    either undefined id <$> (runCompile $ execute U.instrSet True (p1, m1))
 
   putStrLn $ "\nmachine status register: " ++ show status
 

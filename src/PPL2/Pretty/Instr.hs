@@ -97,7 +97,7 @@ prettyOp mns op' =
 
 prettyJmp :: Offset -> Int -> [String]
 prettyJmp pc' disp =
-  [show disp, "--> " ++ show (pc' + toEnum disp)]
+  [show disp, "--> " ++ show (fromIntegral pc' + disp)]
 
 prettyLab :: Int -> String
 prettyLab disp =

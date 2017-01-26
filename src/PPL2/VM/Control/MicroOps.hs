@@ -58,7 +58,7 @@ incrPC :: MicroInstr v
 incrPC = modPC 1
 
 modPC :: Int -> MicroInstr v
-modPC disp = msPC += toEnum disp
+modPC disp = msPC += fromIntegral disp
 
 -- ----------------------------------------
 --

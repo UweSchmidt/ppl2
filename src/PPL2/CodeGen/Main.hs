@@ -13,9 +13,9 @@ import PPL2.System.Types
 -- the main entry point into codegen
 
 genCode :: (MonadCompile m, Show v, CoreValue v) =>
-           (Mnemonic -> Bool) -> UntypedExpr v -> m (ACode, [v])
+           (Mnemonic -> Bool) -> UntypedExpr v -> m (AProg v)
 genCode isop e =
-  either (issueError 2) return $
+  either (issueError 2017) return $
   first msg $
   genACode isop e
   where

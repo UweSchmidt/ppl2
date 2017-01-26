@@ -27,21 +27,54 @@ genCode' :: UntypedExpr U.MV -> RunCompile (ACode, [U.MV])
 genCode' = genCode (hasOpCode U.instrSet)
 
 e1 :: CoreValue v => UntypedExpr v
-e1 = expr # (",", [glb, xy12, swap])
+e1 = expr # (",", [glb, xy12, swap, loop, cndst, ifst, ifex, asss])
   where
     glb    = expr1 # ("globals", lit . _Word # 10) -- allocate 10 global variables
-    xy12   = expr2 # (":=", (xy, i1i2))
+    xy12   = expr2 # (":=", (xy, i0 .+. i2))
     swap   = expr2 # (":=", (xy, yx))
+    loop   = while (x `nei` y)
+                   (xy `ass` (x `subi` i1 .+. y `addi` i1))
+    cndst  = ifthen ( x `eqi` i42) (x `ass` (x `addi` i42))
+    ifst   = ifthenelse (y `gei` i1) ( y `ass` i42) (y `ass` i23)
+    ifex   = z `ass` ifthenelse (y `gei` i0) y (negi y)
+    asss   = voidex (x `cpy` (y `cpy` (z `cpy` i23)))
 
-    xy     = expr2 # (",", (x, y))
-    yx     = expr2 # (",", (y, x))
-    i1i2   = expr2 # (",", (i1, i2))
+    xy     = x .+. y
+    yx     = y .+. x
+    i1i2   = i1 .+. i2
 
-    x      = address # (AbsA 1)
-    y      = address # (AbsA 2)
+    x      = address # AbsA 1
+    y      = address # AbsA 2
+    z      = address # AbsA 3
+    u      = address # AbsA 4
+    v      = address # AbsA 5
 
+    -- i0, i1, i42 :: CoreValue v => UntypedExpr v
+    i0     = lit . _Int # 0
     i1     = lit . _Int # 1
     i2     = lit . _Int # 2
+    i23    = lit . _Int # (23::Int)
+    i42    = lit . _Int # (42::Int)
+
+-- ass, while, ifthen, eqi, addi, subi :: UntypedExpr v -> UntypedExpr v -> UntypedExpr v
+void'      = expr0 # "void"
+voidex e   = void' `ass` e
+ass    l r = expr2 # (":=", (l, r))
+cpy    l r = expr2 # ("copy", (l, r))
+while  c b = expr2 # ("while", (c, b))
+ifthen c t = expr2 # ("if", (c, t))
+ifthenelse c t e = expr3 # ("if", (c, t, e))
+eqi  e1 e2 = expr2 # ("eqi", (e1, e2))
+nei  e1 e2 = expr2 # ("nei", (e1, e2))
+gei  e1 e2 = expr2 # ("gei", (e1, e2))
+addi e1 e2 = expr2 # ("addi", (e1, e2))
+subi e1 e2 = expr2 # ("subi", (e1, e2))
+negi e1    = expr1 # ("negi", e1)
+
+
+infixr 6 .+.
+(.+.) e1 e2 = expr2 # (",", (e1, e2))
+
 
 p1' :: ACode
 p1' =
@@ -96,7 +129,7 @@ compilePipeline :: (Show v, CoreValue v) =>
 compilePipeline instrSet =
   tee (tostderr . prettyUntypedExpr show)
   >=>
-  undefined -- genCode (toOpCode instrSet)
+  genCode (hasOpCode instrSet)
   >=>
   stopWhen onlyGenCode
   >=>

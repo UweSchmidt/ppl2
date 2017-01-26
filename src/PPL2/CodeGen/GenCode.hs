@@ -11,7 +11,7 @@ import PPL2.CodeGen.Monad
 -- ----------------------------------------
 
 genACode :: CoreValue v =>
-            (Mnemonic -> Bool) -> UntypedExpr v -> Either (GCError v) (ACode, [v])
+            (Mnemonic -> Bool) -> UntypedExpr v -> Either (GCError v) (AProg v)
 genACode isOp e =
   fst $ runGC genProg
   where
@@ -53,7 +53,7 @@ genCodeExpr isComputeOp = go
       -- gen code for a compute instr
       | Just (opr, es) <- e ^? hasOp isComputeOp . expr = do
           cs <- traverse go es
-          return $ gComp opr <> mconcat cs
+          return $ mconcat cs <> gComp opr
 
       | Just (fct, params) <- e ^? hasOp (== "call") . expr2 . _2 = do
           cparams <- go params
@@ -95,12 +95,25 @@ genCodeExpr isComputeOp = go
 
           return $ mconcat
             [ ccond
-            , gBrFalse l1
+            , gBr False l1
             , cthen
-            , gJump    l2
-            , gLabel   l1
+            , gJump     l2
+            , gLabel    l1
             , celse
-            , gLabel   l2
+            , gLabel    l2
+            ]
+
+      -- code for if-then
+      | Just (cond, then') <- e ^? hasOp (== "if") . expr2 . _2 = do
+          l1 <- newLabel
+          ccond <- branch l1 False cond
+          cthen <- go then'
+
+          return $ mconcat
+            [ ccond
+            , gBr False l1
+            , cthen
+            , gLabel    l1
             ]
 
       -- code for "while expr do stmt"
@@ -116,7 +129,7 @@ genCodeExpr isComputeOp = go
             , cbody
             , gLabel  l1
             , ccond
-            , gBrTrue l2
+            , gBr True l2
             ]
 
       -- code for "do stmt while expr"
@@ -246,7 +259,7 @@ genCodeExpr isComputeOp = go
           else mempty
 
       | otherwise =
-          abortGC $ errGCExpr e
+          go e
 
     -- --------------------
 

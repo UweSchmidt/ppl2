@@ -43,7 +43,7 @@ new len v = Segment len seg
       | otherwise = M.empty
 
 newInit :: [a] -> Segment a
-newInit vs = Segment (toEnum $ M.size seg) seg
+newInit vs = Segment (fromIntegral $ M.size seg) seg
   where
     seg = L.foldl' (\ m (i, v) -> M.insert i v m) M.empty $
           zip [0..] vs

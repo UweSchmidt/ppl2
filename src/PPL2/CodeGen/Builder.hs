@@ -68,12 +68,15 @@ gSRJump = gi . SRJump
 gSRJumpInd :: Code
 gSRJumpInd = gi SRJumpInd
 
+gBr :: Bool -> Label -> Code
+gBr b = gi . Br b
+{-
 gBrFalse :: Label -> Code
 gBrFalse = gi . Br False
 
 gBrTrue :: Label -> Code
 gBrTrue = gi . Br True
-
+-- -}
 gEnter :: Offset -> Code
 gEnter = gi . Enter
 

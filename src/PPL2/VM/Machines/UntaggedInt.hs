@@ -39,7 +39,7 @@ instance DataRefValue MV where
         (fromEnum w `shiftR` 32, w .&. 0xffffffff)
 
       frRef (sid, i) =
-        toEnum sid `shiftL` 32 .|. i
+        fromIntegral sid `shiftL` 32 .|. i
 
 instance CodeRefValue MV where
   _CodeRef = _Word

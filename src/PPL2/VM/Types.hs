@@ -133,7 +133,7 @@ class WordValue v where
 
   _Bool = _Word . isoWordBool
     where
-      isoWordBool = iso (/= 0) (toEnum . fromEnum)
+      isoWordBool = iso (/= 0) (fromIntegral . fromEnum)
 
 class DataRefValue v where
   _DataRef :: Prism' v DataRef

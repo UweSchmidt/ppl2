@@ -77,7 +77,7 @@ iSRJump disp = do
 
 iLoadLab :: CodeRefValue v => Displ -> MicroInstr v
 iLoadLab disp = do
-  i <- (+ toEnum (disp - 1)) <$> getPC
+  i <- (+ fromIntegral (disp - 1)) <$> getPC
   getInstr i >> push (_CodeRef # i)
 
 iJumpInd :: CodeRefValue v => MicroInstr v

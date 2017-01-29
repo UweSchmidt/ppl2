@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module PPL2.CodeGen.Types where
+module PPL2.CodeGen.UntypedExpr where
 
 import PPL2.Prelude
 import PPL2.VM.Types

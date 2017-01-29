@@ -43,7 +43,7 @@ executable ppl2
                 PPL2.CodeGen.Builder
                 PPL2.CodeGen.Monad
                 PPL2.CodeGen.GenCode
-                PPL2.CodeGen.Types
+                PPL2.CodeGen.UntypedExpr
                 PPL2.Assemble.Main
                 PPL2.Assemble.Assemble
                 PPL2.Pretty.Instr

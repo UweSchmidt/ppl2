@@ -1,7 +1,7 @@
 module PPL2.Pretty.UntypedExpr where
 
 import PPL2.Prelude
-import PPL2.CodeGen.Types
+import PPL2.CodeGen.UntypedExpr
 import PPL2.Pretty.Instr  (prettyAddr)
 
 import Data.Tree          (drawTree)

@@ -17,7 +17,7 @@ where
 
 import PPL2.Prelude
 import PPL2.VM.Types
-import PPL2.CodeGen.Types
+import PPL2.CodeGen.UntypedExpr
 import PPL2.CodeGen.Builder
 
 -- ----------------------------------------

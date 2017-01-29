@@ -2,10 +2,10 @@ module PPL2.CodeGen.Main where
 
 import PPL2.Prelude
 import PPL2.VM.Types
-import PPL2.CodeGen.Types      (UntypedExpr)
-import PPL2.CodeGen.Monad      (GCError(..))
-import PPL2.CodeGen.GenCode    (genACode)
-import PPL2.Pretty.UntypedExpr (prettyUntypedExpr)
+import PPL2.CodeGen.UntypedExpr (UntypedExpr)
+import PPL2.CodeGen.Monad       (GCError(..))
+import PPL2.CodeGen.GenCode     (genACode)
+import PPL2.Pretty.UntypedExpr  (prettyUntypedExpr)
 import PPL2.System.Types
 
 -- ----------------------------------------

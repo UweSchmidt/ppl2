@@ -1,5 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE OverlappingInstances #-}
 
 module PPL2.CodeGen.TypedExpr where
 
@@ -71,14 +72,57 @@ tInt  = tSimple' "Int"
 tBool = tSimple' "Bool"
 tVoid = tSimple' "(,)"
 
+tTuple :: Prism' Typ [Typ]
+tTuple = prism
+  (\ ts -> (tVoid # ()) & tSubTyps .~ ts)
+  (\ case
+      Node "(,)" ts -> Right ts
+      x             -> Left  x
+  )
+
 tSize :: Typ -> Int
 tSize = length . tComp
 
 tComp :: Typ -> [Typ]
 tComp t
-  | Just () <- t ^? tVoid    = mempty
+  | Just _ <- t ^? tVoid    = mempty
   | Just _  <- t ^? tSimple  = return t
   | sts     <- t ^. tSubTyps = sts >>= tComp
+
+prettyTyp :: Typ -> String
+prettyTyp t
+  | Just ()    <- t ^? tVoid   = "()"
+  | Just n     <- t ^? tSimple = n
+  | Just "(,)" <- t ^? tName   =
+                  "(" ++ intercalate "," (map prettyTyp $ t ^. tSubTyps) ++ ")"
+  | otherwise                  = t ^. tName ++ " [" ++
+                         intercalate "," (map prettyTyp $ t ^. tSubTyps) ++ "]"
+
+instance Show Typ where show = prettyTyp
+
+instance Monoid Typ where
+  mempty = tVoid # ()
+  t1 `mappend` t2
+    -- one arg (), take the other
+    | Just _ <- t1 ^? tVoid = t2
+    | Just _ <- t2 ^? tVoid = t1
+
+    -- both tuples, ++ subtype lists
+    | Just ts1 <- t1 ^? tTuple
+    , Just ts2 <- t2 ^? tTuple =
+        tTuple # (ts1 ++ ts2)
+
+    -- on a tuple, append or cons the other
+    | Just ts1 <- t1 ^? tTuple =
+        tTuple # (ts1 ++ [t2])
+
+    | Just ts2 <- t2 ^? tTuple =
+        tTuple # (t1 : ts2)
+
+    -- else build a pair type
+    | otherwise =
+        tTuple # [t1, t2]
+
 
 -- ----------------------------------------
 --

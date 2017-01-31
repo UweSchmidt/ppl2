@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 
 module PPL2.CodeGen.TypedExpr where
 
@@ -6,6 +7,7 @@ import PPL2.Prelude
 import PPL2.VM.Types
 
 import Data.Tree
+import Data.Tree.Lens
 import Data.List (intercalate)
 
 -- ----------------------------------------
@@ -39,7 +41,13 @@ type Name         = String
 
 -- ----------------------------------------
 --
--- smart selectors/constructors for Typ-es
+-- smart selectors/constructors and predicates for Typ-es
+
+tName :: Lens' Typ Name
+tName = root
+
+tSubTyps :: Lens' Typ [Typ]
+tSubTyps = branches
 
 tSimple :: Prism' Typ Name
 tSimple = prism
@@ -64,24 +72,102 @@ tBool = tSimple' "Bool"
 tVoid = tSimple' "(,)"
 
 tSize :: Typ -> Int
-tSize t
-  | Just () <- t ^? tVoid   = 0
-  | Just _  <- t ^? tSimple = 1
+tSize = length . tComp
 
+tComp :: Typ -> [Typ]
+tComp t
+  | Just () <- t ^? tVoid    = mempty
+  | Just _  <- t ^? tSimple  = return t
+  | sts     <- t ^. tSubTyps = sts >>= tComp
 
-
-{- }
 -- ----------------------------------------
 --
--- smart selectors/constructors for Expr-essions
+-- lenses, prisms and traversals for typed expressions
+-- type Traversal s t a b = Applicative f => (a -> f b) -> s -> f t
+-- traverseFst ::           Applicative f => (t -> f a1) -> (t, a) -> f (a1, a)
 
-address :: Prism' (TypedExpr v) Address
-address = prism
-  (\ i -> Node (Adr i) [])
+exprl :: Lens' (TypedExpr v) [TypedExpr v]
+exprl = branches
+
+isoTreePair :: Iso' (Tree a) (a, [Tree a])
+isoTreePair = iso (\ (Node i xs) -> (i, xs))  (uncurry Node)
+
+prismListPair :: Prism' [a] (a, a)
+prismListPair = prism
+  (\ (x1, x2) -> [x1, x2])
   (\ case
-      Node (Adr i) _xs -> Right i
-      x                -> Left  x
+      [x1, x2] -> Right (x1, x2)
+      x        -> Left x
   )
+
+prismList2 :: Prism' [a] [a]
+prismList2 = prism
+  id
+  (\ case
+      x@[_, _] -> Right x
+      x        -> Left  x
+  )
+
+list2 :: Prism' [a] [a]
+list2 = prism
+  id
+  (\ case
+      x@[_, _] -> Right x
+      x        -> Left  x
+  )
+
+list1 :: Prism' [a] a
+list1 = prism
+  (:[])
+  (\ case
+      [x] -> Right x
+      x   -> Left  x
+  )
+
+
+
+-- just _1 and _2 !!!
+traverse_1 :: Traversal (a, c) (b, c) a b
+traverse_1 inj (x1, x2) = (,) <$> inj x1 <*> pure x2
+
+traverse2 :: Traversal (c, a) (c, b) a b
+traverse2 inj (x1, x2) = (,) x1 <$> inj x2
+
+
+tOpr :: Prism' (TypedExOp v) Mnemonic
+tOpr = prism
+  TOpr
+  (\ case
+      TOpr n -> Right n
+      x      -> Left  x
+  )
+
+-- select the argument type of a unary expression as a pattern guard
+-- | Just t1 <- e ^? tType2
+
+tTyp1 :: Traversal' (TypedExpr v) Typ
+tTyp1 = exprl . list1 . root . _2
+
+-- select the argument types of a binary expression as a pattern guard
+-- | [t1,t2] <- e ^.. tType2
+
+tTyp2 :: Traversal' (TypedExpr v) Typ
+tTyp2 = exprl . list2 . traverse . root . _2
+
+tOpr' :: Traversal' (TypedExpr v) (Mnemonic, Typ)
+tOpr' = root . opr'
+  where
+    opr' = prism
+      (\ (i, t) -> (TOpr i, t))
+      (\ case
+        (TOpr n, t) -> Right (n, t)
+        x           -> Left  x
+      )
+
+tTyp :: Lens' (TypedExpr v) Typ
+tTyp = root . _2
+
+{- }
 
 label :: Prism' (TypedExpr v) Label
 label = prism

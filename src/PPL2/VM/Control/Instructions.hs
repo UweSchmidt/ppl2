@@ -45,7 +45,7 @@ iPop :: MicroInstr v
 iPop = void pop
 
 iDup :: Offset -> MicroInstr v
-iDup i = do
+iDup _i = do
   v <- pop
   push v
   push v

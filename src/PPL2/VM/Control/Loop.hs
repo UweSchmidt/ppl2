@@ -13,8 +13,6 @@ import           PPL2.VM.Control.Types        (MicroInstr, runMicroCode, io)
 import           PPL2.VM.ALU.Types
 import           PPL2.Pretty.Instr            (instrTrc)
 
-import           System.IO                    (stderr, hPutStrLn)
-
 import           PPL2.System.Types
 
 -- ----------------------------------------

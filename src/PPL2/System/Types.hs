@@ -68,6 +68,7 @@ newtype RunCompile a
            , MonadIO
            )
 
+runCompile :: RunCompile a -> IO (Either ExitCode a)
 runCompile = runExceptT . unRC
 
 instance MonadOptions RunCompile where

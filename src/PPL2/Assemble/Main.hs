@@ -1,7 +1,6 @@
 module PPL2.Assemble.Main
 where
 
-import PPL2.Prelude
 import PPL2.VM
 import PPL2.Assemble.Assemble (assembleCode)
 import PPL2.System.Types

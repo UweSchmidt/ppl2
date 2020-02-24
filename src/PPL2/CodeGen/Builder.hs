@@ -10,9 +10,11 @@ import PPL2.VM.Types
 
 newtype Builder a = BU {unBU :: ([a] -> [a])}
 
+instance Semigroup (Builder a) where
+  BU x <> BU y = BU $ x . y
+
 instance Monoid (Builder a) where
   mempty = BU id
-  BU x `mappend` BU y = BU $ x . y
 
 builder2List :: Builder a -> [a]
 builder2List = ($ []) . unBU

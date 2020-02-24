@@ -15,10 +15,10 @@ prettyInstr :: (String -> String) ->
                (lab -> [String]) ->
                (lab -> String) ->
                Instr op lab -> String
-prettyInstr indent prettyOp prettyJmp prettyLab ins =
+prettyInstr indent' prettyOp' prettyJmp' prettyLab' ins =
   case ins of
-    Label lab -> prettyLab lab
-    _         -> indent . fmt $ pretty'
+    Label lab -> prettyLab' lab
+    _         -> indent' . fmt $ pretty'
   where
     pretty' :: [String]
     pretty' =
@@ -33,16 +33,16 @@ prettyInstr indent prettyOp prettyJmp prettyLab ins =
         Swap              -> ["swap"]
         LoadAddr (AbsA a) -> ["loadAddrG", show a]
         LoadAddr (LocA a) -> ["loadAddrL", show a]
-        Br True  l        ->  "brTrue"    : prettyJmp l
-        Br False l        ->  "brFalse"   : prettyJmp l
-        Jump     l        ->  "jump"      : prettyJmp l
-        SRJump   l        ->  "srjump"    : prettyJmp l
-        LoadLab  l        ->  "loadlab"   : prettyJmp l
+        Br True  l        ->  "brTrue"    : prettyJmp' l
+        Br False l        ->  "brFalse"   : prettyJmp' l
+        Jump     l        ->  "jump"      : prettyJmp' l
+        SRJump   l        ->  "srjump"    : prettyJmp' l
+        LoadLab  l        ->  "loadlab"   : prettyJmp' l
         JumpInd           -> ["jumpind"]
         SRJumpInd         -> ["srjumpind"]
         Enter ub          -> ["pushframe", show $ ub + 1]
         Leave             -> ["popframe"]
-        Comp op'          -> [prettyOp op']
+        Comp op'          -> [prettyOp' op']
         Term              -> ["terminate"]
         _                 -> []
 

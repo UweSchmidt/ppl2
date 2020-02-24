@@ -1,9 +1,7 @@
 module PPL2.Pretty.MProg where
 
-import PPL2.Prelude
 import PPL2.VM.Types
 import PPL2.Pretty.Instr
-import PPL2.System.Types (MonadCompile)
 
 -- ----------------------------------------
 
